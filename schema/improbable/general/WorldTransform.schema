@@ -1,0 +1,11 @@
+package improbable.general;
+
+component WorldTransform {
+    // Schema file ID, unique within the project
+    id = 1000;
+
+	// Entity's true transform within the simulation
+    EntityPosition position = 1;
+    Vector3f rotation = 2;
+    float speed = 3;
+}
