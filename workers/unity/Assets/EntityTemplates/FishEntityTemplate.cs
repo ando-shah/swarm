@@ -14,8 +14,8 @@ namespace Assets.EntityTemplates
     public class FishEntityTemplate : MonoBehaviour
     {
 		private static int numFish = 20;
-		private static int spawnDiameter = 1;	//TODO: Have to find a way to connect this to global variable, tankSize
-
+		private static float spawnDiameter = 10.0f;		//TODO: Have to find a way to connect this to global variable, tankSize
+		private static float initialSpeed = 3.0f;	//TODO: Have to find a way to connect this to global variable, initialSpeed
         // Template definition for a Fish entity
         public static SnapshotEntity GenerateFishSnapshotEntityTemplate()
         {
@@ -28,8 +28,7 @@ namespace Assets.EntityTemplates
 				                                  Random.Range (-30, 30),
 				                                  Random.value * 360);	//roll, pitch, yaw
 
-			float fishInitialSpeed = Random.value;
-
+			//float fishInitialSpeed = Random.Range (initialSpeed / 2.0f, initialSpeed);
 
             // Set name of Unity prefab associated with this entity
             //var FishEntity = new SnapshotEntity { Prefab = "ExampleEntity" };
@@ -37,7 +36,7 @@ namespace Assets.EntityTemplates
 
 
             // Define components attached to snapshot entity
-			FishEntity.Add(new WorldTransform.Data(new WorldTransformData(fishInitialCoordinates, fishInitialRotation, fishInitialSpeed)));
+			FishEntity.Add(new WorldTransform.Data(new WorldTransformData(fishInitialCoordinates, fishInitialRotation, initialSpeed)));
 				
 
 			// Grant UnityWorker (server-side) workers write-access over all of this entity's components, read-access for visual (e.g. client) workers

@@ -54,7 +54,7 @@ namespace Assets.Gamelogic.Fish.Behaviours
 			//Check if it's too far from center
 			float distanceFromCenter = Vector3.Distance(this.transform.position, Vector3.zero);
 
-			if (distanceFromCenter >= spawnDiameter/2.0f)
+			if (distanceFromCenter >= spawnDiameter)
 				ApplyReturn ();
 			else {
 				if (Random.Range (0, 5) < 1)
@@ -80,6 +80,9 @@ namespace Assets.Gamelogic.Fish.Behaviours
 			var query = Query.InSphere(transform.position.x, transform.position.y, transform.position.z, neighborDistance).ReturnOnlyEntityIds();
 			int groupSize = 0;
 			float groupSpeed = 0.0f;
+
+			//Goal's current position (from SwarmGoal entity)
+			Vector3 goalPos = Vector3.zero;
 
 			//Vectors that need to be calculated
 			//Vector that points towards the center of the flock
@@ -111,11 +114,10 @@ namespace Assets.Gamelogic.Fish.Behaviours
 					if(SpatialOS.Universe.ContainsEntity(item.Key))   //From Improbable.Core.Entity.SpatialOS.Universe
 					{
 
-						GameObject otherFish = SpatialOS.Universe.Get(idRef).UnderlyingGameObject;
+						//GameObject otherFish = SpatialOS.Universe.Get(idRef).UnderlyingGameObject; // this works also
 						Vector3 otherFishPos = SpatialOS.GetLocalEntityComponent<WorldTransform>(idRef).Get().Value.position.ToVector3();
 						float otherSpeed     = SpatialOS.GetLocalEntityComponent<WorldTransform>(idRef).Get().Value.speed;
 
-						//Vector3 otherPos = otherFish.transform.position;
 						vCenter += otherFishPos;
 						float otherDistance = Vector3.Distance(this.transform.position, otherFishPos);
 
@@ -132,11 +134,32 @@ namespace Assets.Gamelogic.Fish.Behaviours
 
 			if (groupSize > 0) {
 
-				vCenter = (vCenter / groupSize); // +
+				//Find the goal entity
+				query = Query.HasComponent<GoalParameters>().ReturnOnlyEntityIds();
+
+				SpatialOS.Commands.SendQuery(WorldTransformWriter, query, result => {
+					if (result.StatusCode != StatusCode.Success) {
+						Debug.Log("Goal Query failed with error: " + result.ErrorMessage);
+						return;
+					}
+					//result.Response.
+					Debug.Log("Goal Found " + result.Response.Count);
+					if (result.Response.Count < 1) {
+						return;  //No goal
+					}
+					Map<EntityId, Entity> resultMap = result.Response.Value.Entities;
+					EntityId idRef = resultMap.First.Value.Key;
+
+					goalPos = SpatialOS.GetLocalEntityComponent<WorldTransform>(idRef).Get().Value.position.ToVector3();
+
+				});
+
+
+				vCenter = (vCenter / groupSize) + (goalPos - this.transform.position);
 				speed = groupSpeed/groupSize;
 
 				//Clamp max speed, in case it spirals out of control
-				speed = Mathf.Clamp (speed, initialSpeed, maxSpeed);
+				//speed = Mathf.Clamp (speed, initialSpeed, maxSpeed);
 
 				//Set it's orientation
 				//Relative Position (or direction) = Target position (i.e. vCenter - vAvoid) minus current position

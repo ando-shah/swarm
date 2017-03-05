@@ -1,0 +1,13 @@
+package improbable.general;
+
+component GoalParameters {
+    // Schema file ID, unique within the project
+    id = 1002;
+
+	// Entity's parameters
+	float tanksize = 1;
+	float goalspeed = 2;
+	uint32 numfish = 3;
+	float initialspeed = 4;
+
+}
