@@ -23,6 +23,7 @@ public class SnapshotMenu : MonoBehaviour
 		FishEntityTemplate.PopulateSnapshotWithFishEntities( ref snapshotEntities, ref currentEntityId);
 		SwarmGoalEntityTemplate.PopulateSnapshotWithSwarmGoalEntities( ref snapshotEntities, ref currentEntityId);
         SaveSnapshot(snapshotEntities);
+
     }
 
     private static void SaveSnapshot(IDictionary<EntityId, SnapshotEntity> snapshotEntities)

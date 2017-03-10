@@ -1,8 +1,8 @@
 {
     "name": "alpha_jupiter_mountain_675",
-    "project_version": "0.0.3",
-    "sdk_version": "10.0.0",
+    "project_version": "0.0.4",
+    "sdk_version": "10.0.1",
     "dependencies": [
-		{"name": "WorkerSdkSchema", "version": "10.0.0"}
+		{"name": "WorkerSdkSchema", "version": "10.0.1"}
     ]
 }

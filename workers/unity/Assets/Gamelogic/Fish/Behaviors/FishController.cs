@@ -19,7 +19,6 @@ namespace Assets.Gamelogic.Fish.Behaviours
 {
 	// Enable this MonoBehaviour on UnityWorker (server-side) workers only : different syntax on v10 vs v9 : https://spatialos.improbable.io/docs/reference/10.0/releases/upgrade-guides/how-to-upgrade-10
 	[WorkerType(WorkerPlatform.UnityWorker)]
-	//This only controls the movement of the fish, i.e. it's speed. The orientation is goverened in Swarm
 
 	public class FishController : MonoBehaviour
 	{
@@ -30,24 +29,68 @@ namespace Assets.Gamelogic.Fish.Behaviours
          */
 		[Require] private WorldTransform.Writer WorldTransformWriter;
 
-		public float initialSpeed = 1.0f;
-		public float maxSpeed = 1.5f;
+		public float initialSpeed = 3.0f;
+		public float maxSpeed = 3.5f;
 		public float angularSpeed = 10.0f;
-		public float neighborDistance = 2.0f;  // The max distance to its closest neighbor, within which it will display flocking behavior
+		public double neighborDistance = 5.0;  // The max distance to its closest neighbor, within which it will display swarming behavior
 		public float collisionDistance = 0.2f; // The minimum distance to its neighbors, at which it will avoid those fish
 
 		//This will govern its current speed
-		private float speed = 0.5f;
+		private float speed;
 
 
 		//Need to move these to SwarmController
 		public float spawnDiameter = 10.0f;
 
+		private GameObject goalObj;
+		private EntityId goalId;
+		private float numFish;
+
 		public void OnEnable()
 		{
 			transform.position = WorldTransformWriter.Data.position.ToVector3 ();
-
+			speed = initialSpeed;
 		}
+
+
+		void Start()
+		{
+
+			//Pick up the Goal Entity
+
+			var query = Query.HasComponent<GoalParameters>().ReturnOnlyEntityIds();
+
+			SpatialOS.Commands.SendQuery (WorldTransformWriter, query, result => {
+				if (result.StatusCode != StatusCode.Success) {
+					Debug.LogError ("Goal Query failed with error: " + result.ErrorMessage);
+					return;
+				}
+
+
+				if (result.Response.Count < 1) {
+					Debug.LogError ("Goal NOT found!");
+					return;  //No goal
+				}
+
+
+
+				Map<EntityId, Entity> resultMapG = result.Response.Value.Entities;
+				goalId = resultMapG.First.Value.Key;
+
+				if (SpatialOS.Universe.ContainsEntity (goalId)) {
+					goalObj = SpatialOS.Universe.Get(goalId).UnderlyingGameObject; // this works also
+					numFish = SpatialOS.GetLocalEntityComponent<GoalParameters>(goalId).Get().Value.numfish;
+
+					Debug.Log ("Goal Found @" + goalObj.transform.position + " with ID: " + goalId.Id + "And Num Fish: " + numFish);
+
+
+				} else {							
+					Debug.LogError ("Goal NOT found!");
+					return;
+				}
+			});
+		}
+
 
 		public void Update()
 		{
@@ -75,11 +118,13 @@ namespace Assets.Gamelogic.Fish.Behaviours
 
 		}
 
+		/*
 		private void ApplySwarmMechanics()
 		{
 			var query = Query.InSphere(transform.position.x, transform.position.y, transform.position.z, neighborDistance).ReturnOnlyEntityIds();
 			int groupSize = 0;
 			float groupSpeed = 0.0f;
+
 
 			//Goal's current position (from SwarmGoal entity)
 			Vector3 goalPos = Vector3.zero;
@@ -110,9 +155,9 @@ namespace Assets.Gamelogic.Fish.Behaviours
 					EntityId idRef = item.Key;
 					//Entity   SwarmGoalEntity = item.Value;
 
-
-					if(SpatialOS.Universe.ContainsEntity(item.Key))   //From Improbable.Core.Entity.SpatialOS.Universe
-					{
+					Debug.Log("Looking for key in loop#" + groupSize );
+					//if(SpatialOS.Universe.ContainsEntity(item.Key))   //From Improbable.Core.Entity.SpatialOS.Universe
+					//{
 
 						//GameObject otherFish = SpatialOS.Universe.Get(idRef).UnderlyingGameObject; // this works also
 						Vector3 otherFishPos = SpatialOS.GetLocalEntityComponent<WorldTransform>(idRef).Get().Value.position.ToVector3();
@@ -127,53 +172,178 @@ namespace Assets.Gamelogic.Fish.Behaviours
 						groupSpeed += otherSpeed;
 
 						groupSize++;
-					}
+					//}
 				}
 
-			});
+				Debug.Log ("Group Size1: " + groupSize);
+
+			
+
+			//Debug.Log ("Group Size2: " + groupSize);
 
 			if (groupSize > 0) {
+
+				//EntityId id = new EntityId (1003);
 
 				//Find the goal entity
 				query = Query.HasComponent<GoalParameters>().ReturnOnlyEntityIds();
 
-				SpatialOS.Commands.SendQuery(WorldTransformWriter, query, result => {
-					if (result.StatusCode != StatusCode.Success) {
-						Debug.Log("Goal Query failed with error: " + result.ErrorMessage);
+				SpatialOS.Commands.SendQuery(WorldTransformWriter, query, resultG => {
+					if (resultG.StatusCode != StatusCode.Success) {
+						Debug.LogError("Goal Query failed with error: " + resultG.ErrorMessage);
 						return;
 					}
-					//result.Response.
-					Debug.Log("Goal Found " + result.Response.Count);
-					if (result.Response.Count < 1) {
+					
+
+					if (resultG.Response.Count < 1) {
+						Debug.LogError("Goal NOT found!");
 						return;  //No goal
 					}
-					Map<EntityId, Entity> resultMap = result.Response.Value.Entities;
-					EntityId idRef = resultMap.First.Value.Key;
-
-					goalPos = SpatialOS.GetLocalEntityComponent<WorldTransform>(idRef).Get().Value.position.ToVector3();
-
-				});
 
 
-				vCenter = (vCenter / groupSize) + (goalPos - this.transform.position);
-				speed = groupSpeed/groupSize;
 
-				//Clamp max speed, in case it spirals out of control
-				//speed = Mathf.Clamp (speed, initialSpeed, maxSpeed);
+					Map<EntityId, Entity> resultMapG = resultG.Response.Value.Entities;
+					EntityId idRef = resultMapG.First.Value.Key;
 
-				//Set it's orientation
-				//Relative Position (or direction) = Target position (i.e. vCenter - vAvoid) minus current position
-				//example : https://docs.unity3d.com/ScriptReference/Quaternion.LookRotation.html
-				//Vector3 direction = (vCenter + vAvoid) - this.transform.position;
-				Vector3 direction = (vCenter - vAvoid) - this.transform.position;
+					if(SpatialOS.Universe.ContainsEntity(idRef))
+					{
+						goalPos = SpatialOS.GetLocalEntityComponent<WorldTransform>(idRef).Get().Value.position.ToVector3();
+						Debug.Log("Goal Found @" + goalPos);
+
+					}
+					else
+						{							
+							Debug.LogError("Goal NOT found!");
+							return;
+						}
+					
+
+				
 
 
-				//Slowly turn in that direction
-				transform.rotation = Quaternion.Slerp ( this.transform.rotation,
-					Quaternion.LookRotation (direction) ,
-					angularSpeed * Time.deltaTime);
+					vCenter = (vCenter / groupSize) + (goalPos - this.transform.position);
+					speed = groupSpeed/groupSize;
+
+					//Clamp max speed, in case it spirals out of control
+					//speed = Mathf.Clamp (speed, initialSpeed, maxSpeed);
+
+					//Set it's orientation
+					//Relative Position (or direction) = Target position (i.e. vCenter - vAvoid) minus current position
+					//example : https://docs.unity3d.com/ScriptReference/Quaternion.LookRotation.html
+					//Vector3 direction = (vCenter + vAvoid) - this.transform.position;
+					Vector3 direction = (vCenter - vAvoid) - this.transform.position;
+
+
+					//Slowly turn in that direction
+					transform.rotation = Quaternion.Slerp ( this.transform.rotation,
+						Quaternion.LookRotation (direction) ,
+						angularSpeed * Time.deltaTime);
+
+					});
 
 			}
+			});
+
+
+		}*/
+
+		private void ApplySwarmMechanics()
+		{
+			var query = Query.InSphere(transform.position.x, transform.position.y, transform.position.z, neighborDistance).ReturnOnlyEntityIds();
+			int groupSize = 0;
+			float groupSpeed = 0.0f;
+
+
+			//Goal's current position (from SwarmGoal entity)
+			Vector3 goalPos = Vector3.zero;
+
+			//Vectors that need to be calculated
+			//Vector that points towards the center of the flock
+			Vector3 vCenter = Vector3.zero;
+
+			//Vector that avoids other fish
+			Vector3 vAvoid = Vector3.zero;
+
+
+
+
+
+			SpatialOS.Commands.SendQuery(WorldTransformWriter, query, result => {
+				if (result.StatusCode != StatusCode.Success) {
+					Debug.Log("Query failed with error: " + result.ErrorMessage);
+					return;
+				}
+				//result.Response.
+				Debug.Log("Found " + result.Response.Count + " nearby entities");
+				if (result.Response.Count < 1) {
+					return;  //No fish in range
+				}
+				Map<EntityId, Entity> resultMap = result.Response.Value.Entities;
+
+				foreach(var item in resultMap)
+				{
+					EntityId idRef = item.Key;
+
+					if (idRef.Id == numFish)  //i.e. == goal
+						continue;
+					//Entity   SwarmGoalEntity = item.Value;
+
+					//Debug.Log("Looking for key in loop#" + groupSize );
+					//if(SpatialOS.Universe.ContainsEntity(item.Key))   //From Improbable.Core.Entity.SpatialOS.Universe
+					//{
+
+					//GameObject otherFish = SpatialOS.Universe.Get(idRef).UnderlyingGameObject; // this works also
+					Vector3 otherFishPos = SpatialOS.GetLocalEntityComponent<WorldTransform>(idRef).Get().Value.position.ToVector3();
+					float otherSpeed     = SpatialOS.GetLocalEntityComponent<WorldTransform>(idRef).Get().Value.speed;
+
+					vCenter += otherFishPos;
+					float otherDistance = Vector3.Distance(this.transform.position, otherFishPos);
+
+					if(otherDistance <= collisionDistance)
+						vAvoid -= this.transform.position - otherFishPos;
+
+					groupSpeed += otherSpeed;
+
+					groupSize++;
+					//}
+				}
+
+				//Debug.Log ("Group Size1: " + groupSize);
+
+
+
+				//Debug.Log ("Group Size2: " + groupSize);
+
+				if (groupSize > 0) {
+
+					//EntityId id = new EntityId (1003);
+
+					goalPos = goalObj.transform.position;
+
+					vCenter = (vCenter / groupSize) + (goalPos - this.transform.position);
+					//speed = groupSpeed/groupSize;
+
+					Debug.Log("Goal Pos : (" + goalPos.x + "," + goalPos.y + "," + goalPos.z + ")" + " Center ("+ vCenter.x + "," + vCenter.y + "," + vCenter.z + ")" + " GroupSize: " + groupSize + " Speed: " + speed);
+
+
+					//Clamp max speed, in case it spirals out of control
+					//speed = Mathf.Clamp (speed, initialSpeed, maxSpeed);
+
+					//Set it's orientation
+					//Relative Position (or direction) = Target position (i.e. vCenter - vAvoid) minus current position
+					//example : https://docs.unity3d.com/ScriptReference/Quaternion.LookRotation.html
+					//Vector3 direction = (vCenter + vAvoid) - this.transform.position;
+					Vector3 direction = (vCenter - vAvoid) - this.transform.position;
+
+
+					//Slowly turn in that direction
+					transform.rotation = Quaternion.Slerp ( this.transform.rotation,
+						Quaternion.LookRotation (direction) ,
+						angularSpeed * Time.deltaTime);
+					
+
+				}
+			});
 
 
 		}
