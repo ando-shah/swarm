@@ -24,35 +24,62 @@ namespace Assets.Gamelogic.Goal.Behaviours
 		[Require] private GoalParameters.Reader GoalParametersReader;
 
 		private Vector3 goalPos, newGoalPos = Vector3.zero;
+		private float tankSize, goalSpeed;
+		private float getAwayRadius = 0.1f;
+		private bool getAway;
 
+
+		public bool avoidFish = true;
 
 
 		// Use this for initialization
 		void Start () {
+
+			tankSize = GoalParametersReader.Data.tanksize;
+			goalSpeed = GoalParametersReader.Data.goalspeed;
+
 			
 		}
 		
 		// Update is called once per frame
 		void Update () 
 		{
-			float tankSize = GoalParametersReader.Data.tanksize;
-			float goalSpeed = GoalParametersReader.Data.goalspeed;
+			//Do Some intelligent checking to see if the any fish are approaching the goal
+			//If so, get away!
+			getAway = false;
 
-			if (Random.Range (0, 1000) < 1) 
-			{
-				newGoalPos = new Vector3 (Random.Range (-tankSize, tankSize),
-					Random.Range (-tankSize, tankSize),
-					Random.Range (-tankSize, tankSize));			
+			//Setup a query to see if there are any entities within a radius
+			var query = Query.InSphere(transform.position.x, transform.position.y, transform.position.z, getAwayRadius).ReturnOnlyEntityIds();
 
-			}
+			SpatialOS.Commands.SendQuery(WorldTransformWriter, query, result => {
+				if (result.StatusCode != StatusCode.Success) {
+					Debug.Log("Goal's query for entities failed with error: " + result.ErrorMessage);
+					return;
+				}
 
-			goalPos = Vector3.Lerp (goalPos, newGoalPos, Time.deltaTime * goalSpeed);
 
-			this.transform.position = goalPos;
+				if ((result.Response.Count > 0)  && (Random.Range (0, 50) < 1))
+				{
+					//Debug.Log("Found " + result.Response.Count + " fish. Goal needs to escape!!");
+					getAway = true;
+				}
+						
+				if ((Random.Range (0, 500) < 1) || getAway)
+				{
+					newGoalPos = new Vector3 (Random.Range (-tankSize, tankSize),
+						Random.Range (-tankSize, tankSize),
+						Random.Range (-tankSize, tankSize));			
 
-			WorldTransformWriter.Send(new WorldTransform.Update ()
-				.SetPosition (transform.position.ToCoordinates ()));
+				}
 
+				goalPos = Vector3.Lerp (goalPos, newGoalPos, Time.deltaTime * goalSpeed);
+
+				this.transform.position = goalPos;
+
+				WorldTransformWriter.Send(new WorldTransform.Update ()
+					.SetPosition (transform.position.ToCoordinates ()));
+
+			});
 			
 		}
 	}
