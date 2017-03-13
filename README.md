@@ -1,27 +1,13 @@
-# BlankProject
+# Swarm Tutorial
 ---
 
-*Copyright Improbable 2016*
 
-- *GitHub Repository*: [github.com/spatialos/BlankProject](https://github.com/spatialos/BlankProject)
+
+- *GitHub Repository*: [https://github.com/ananda13/swarm](https://github.com/ananda13/swarm)
 
 ---
 
 ## Introduction
 
-This is a blank SpatialOS project that you can use to build your own SpatialOS application.
+This is a tutorial on how to setup a swarm simulation using [spatialOS](https://spatialos.improbable.io/) created by Improbable
 
-It contains:
-
-* A SpatialOS project descriptor.
-* Unity worker
-* Bare-bones Launch Configurations for automatically and manually launching workers.
-* Bare-bones Client and Physics Scenes with a `Bootstrap.cs` file.
-* An example deployment configuration, `deploy.json`.
-* `.gitignore` files for a SpatialOS project.
-
-## Using the BlankProject
-
-[SpatialOS documentation](https://spatialos.improbable.io/docs/).
-
-To report bugs or to give feedback on this project, please contact SpatialOS Support.
