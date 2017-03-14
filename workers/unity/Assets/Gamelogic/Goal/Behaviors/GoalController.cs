@@ -25,7 +25,7 @@ namespace Assets.Gamelogic.Goal.Behaviours
 
 		private Vector3 goalPos, newGoalPos = Vector3.zero;
 		private float tankSize, goalSpeed;
-		private float getAwayRadius = 0.1f;
+		private double getAwayRadius = 0.1;
 		private bool getAway;
 
 
@@ -37,7 +37,7 @@ namespace Assets.Gamelogic.Goal.Behaviours
 
 			tankSize = GoalParametersReader.Data.tanksize;
 			goalSpeed = GoalParametersReader.Data.goalspeed;
-
+			Debug.Log ("Goal Startup params: tankSize: " + tankSize + ", Goal Speed:" + goalSpeed);
 			
 		}
 		
@@ -58,7 +58,7 @@ namespace Assets.Gamelogic.Goal.Behaviours
 				}
 
 
-				if ((result.Response.Count > 0)  && (Random.Range (0, 50) < 1))
+				if ((result.Response.Count > 0)  && (Random.Range (0, 200) < 1))
 				{
 					//Debug.Log("Found " + result.Response.Count + " fish. Goal needs to escape!!");
 					getAway = true;

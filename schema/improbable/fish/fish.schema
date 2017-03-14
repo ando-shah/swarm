@@ -1,0 +1,13 @@
+package improbable.general;
+
+component FishParameters {
+	// Schema file ID, unique within the project
+    id = 1003;
+
+	// Entity's parameters
+	uint32 numfish = 1;
+	float initialspeed = 2;
+	float tanksize = 3;   //from +tnksize to -tansize in all dimensions
+
+	
+}

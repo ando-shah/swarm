@@ -28,8 +28,8 @@ namespace Assets.Gamelogic.Fish.Behaviours
          * which has write-access for its WorldTransform component.
          */
 		[Require] private WorldTransform.Writer WorldTransformWriter;
+		[Require] private FishParameters.Reader FishParametersReader;
 
-		public float initialSpeed = 3.0f;
 		public float maxSpeed = 3.5f;
 		public float angularSpeed = 10.0f;
 		public double neighborDistance = 5.0;  // The max distance to its closest neighbor, within which it will display swarming behavior
@@ -41,59 +41,34 @@ namespace Assets.Gamelogic.Fish.Behaviours
 	
 		//From Goal Parameters
 		private GameObject goalObj;
-		private EntityId goalId;
+		private EntityId goalEntity;
 		private float numFish;
 		private float tankSize;
 
 		public void OnEnable()
 		{
 			transform.position = WorldTransformWriter.Data.position.ToVector3 ();
-			speed = initialSpeed;
+			speed = WorldTransformWriter.Data.speed;
+			numFish = FishParametersReader.Data.numfish;
+			tankSize = FishParametersReader.Data.tanksize;
+
+			Debug.Log("Fish Startup Params: speed:" + speed + ", NumFish: " + numFish + ", Tank Size: " +tankSize );
 		}
-
-
-		void Start()
-		{
-
-			//Pick up the Goal Entity 
-			var query = Query.HasComponent<GoalParameters>().ReturnOnlyEntityIds();
-
-			SpatialOS.Commands.SendQuery (WorldTransformWriter, query, result => {
-				if (result.StatusCode != StatusCode.Success) {
-					Debug.LogError ("Goal Query failed with error: " + result.ErrorMessage);
-					return;
-				}
-
-
-				if (result.Response.Count < 1) {
-					Debug.LogError ("Goal NOT found!");
-					return;  //No goal
-				}
-
-
-				Map<EntityId, Entity> resultMapG = result.Response.Value.Entities;
-				goalId = resultMapG.First.Value.Key;
-
-				if (SpatialOS.Universe.ContainsEntity (goalId)) {
-					goalObj = SpatialOS.Universe.Get(goalId).UnderlyingGameObject; // this works also
-					numFish = SpatialOS.GetLocalEntityComponent<GoalParameters>(goalId).Get().Value.numfish;
-					tankSize = SpatialOS.GetLocalEntityComponent<GoalParameters>(goalId).Get().Value.tanksize;
-
-					Debug.Log ("Goal Found @" + goalObj.transform.position + " with ID: " + goalId.Id + "And Num Fish: " + numFish +" in tank of size" + tankSize);
-
-
-				} else {							
-					Debug.LogError ("Goal NOT found!");
-					return;
-				}
-			});
-		}
-
 
 		public void Update()
 		{
+			//Assign the goalObj : originally done in start, but lots of random 'assigned to null reference' errprs propped up
+			goalEntity = new EntityId ((long)numFish);  //Since goal is created after all the fish, the entityID of the goal = numFish
+			goalObj = SpatialOS.Universe.Get(goalEntity).UnderlyingGameObject; 
+			if (goalObj == null) {
+				
+				Debug.LogError ("Goal not found by this fish!! Abort!!");
+				return;
+			}
+
+			Debug.Log ("Goal found at pos (" + goalObj.transform.position + ")");
+
 			//Check if it's too far from center
-			//float distanceFromCenter = Vector3.Distance(this.transform.position, Vector3.zero);
 			if( (transform.position.x >= tankSize)  || (transform.position.y >= tankSize) || (transform.position.z >= tankSize))
 				ApplyReturn ();
 			else {
@@ -157,12 +132,7 @@ namespace Assets.Gamelogic.Fish.Behaviours
 
 					if (idRef.Id == numFish)  //i.e. == goal
 						continue;
-					//Entity   SwarmGoalEntity = item.Value;
-
-					//Debug.Log("Looking for key in loop#" + groupSize );
-					//if(SpatialOS.Universe.ContainsEntity(item.Key))   //From Improbable.Core.Entity.SpatialOS.Universe
-					//{
-
+					
 					//GameObject otherFish = SpatialOS.Universe.Get(idRef).UnderlyingGameObject; // this works also
 					Vector3 otherFishPos = SpatialOS.GetLocalEntityComponent<WorldTransform>(idRef).Get().Value.position.ToVector3();
 					float otherSpeed     = SpatialOS.GetLocalEntityComponent<WorldTransform>(idRef).Get().Value.speed;
@@ -176,23 +146,23 @@ namespace Assets.Gamelogic.Fish.Behaviours
 					groupSpeed += otherSpeed;
 
 					groupSize++;
-					//}
+
 				}
-
-				//Debug.Log ("Group Size1: " + groupSize);
-
-
-
-				//Debug.Log ("Group Size2: " + groupSize);
+					
 
 				if (groupSize > 0) {
 
 					//EntityId id = new EntityId (1003);
+					if(goalObj == null)
+					{
+						Debug.Log("Goal OBJ missing!");
+						return;
+					}
 
 					goalPos = goalObj.transform.position;
 
 					vCenter = (vCenter / groupSize) + (goalPos - this.transform.position);
-					//speed = groupSpeed/groupSize;
+					speed = groupSpeed/groupSize;
 
 					Debug.Log("Goal Pos : (" + goalPos.x + "," + goalPos.y + "," + goalPos.z + ")" + " Center ("+ vCenter.x + "," + vCenter.y + "," + vCenter.z + ")" + " GroupSize: " + groupSize + " Speed: " + speed);
 
@@ -233,7 +203,7 @@ namespace Assets.Gamelogic.Fish.Behaviours
 
 			//reset speed:
 			//speed = Random.Range (startingSpeed/2.0f, startingSpeed);	
-			speed = Mathf.Lerp (speed, initialSpeed, Time.deltaTime);
+			speed = Mathf.Lerp (speed, FishParametersReader.Data.initialspeed, Time.deltaTime);
 			
 		}
 

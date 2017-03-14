@@ -7,7 +7,5 @@ component GoalParameters {
 	// Entity's parameters
 	float tanksize = 1;
 	float goalspeed = 2;
-	uint32 numfish = 3;
-	float initialspeed = 4;
-
+	
 }
