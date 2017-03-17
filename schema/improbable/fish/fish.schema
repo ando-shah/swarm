@@ -7,7 +7,7 @@ component FishParameters {
 	// Entity's parameters
 	uint32 numfish = 1;
 	float initialspeed = 2;
-	float tanksize = 3;   //from +tnksize to -tansize in all dimensions
-
+	float tanksize = 3;   //from +tnksize to -tansize in the horizontal plane
+	float tankheight = 4; //in the vertical direction, with lower limit implied at 0 for now.
 	
 }

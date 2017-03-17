@@ -43,7 +43,7 @@ namespace Assets.Gamelogic.Fish.Behaviours
 		private GameObject goalObj;
 		private EntityId goalEntity;
 		private float numFish;
-		private float tankSize;
+		private float tankSize, tankHeight;
 
 		public void OnEnable()
 		{
@@ -51,6 +51,8 @@ namespace Assets.Gamelogic.Fish.Behaviours
 			speed = WorldTransformWriter.Data.speed;
 			numFish = FishParametersReader.Data.numfish;
 			tankSize = FishParametersReader.Data.tanksize;
+			tankHeight = FishParametersReader.Data.tankheight;
+
 
 			Debug.Log("Fish Startup Params: speed:" + speed + ", NumFish: " + numFish + ", Tank Size: " +tankSize );
 		}
@@ -69,7 +71,9 @@ namespace Assets.Gamelogic.Fish.Behaviours
 			Debug.Log ("Goal found at pos: " + goalObj.transform.position);
 
 			//Check if it's too far from center
-			if( (transform.position.x >= tankSize)  || (transform.position.y >= tankSize) || (transform.position.z >= tankSize))
+			if ((transform.position.x >= tankSize)   || (transform.position.x <= -tankSize) ||
+				(transform.position.y >= tankHeight) || (transform.position.y <= 0.1f) || 		/*so they dont touch the ground*/
+				(transform.position.z >= tankSize)   || (transform.position.z <= -tankSize))
 				ApplyReturn ();
 			else {
 				if (Random.Range (0, 10) < 1)

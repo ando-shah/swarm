@@ -6,6 +6,7 @@ component GoalParameters {
 
 	// Entity's parameters
 	float tanksize = 1;
-	float goalspeed = 2;
+	float tankheight = 2;
+	float goalspeed = 3;
 	
 }

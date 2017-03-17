@@ -13,16 +13,17 @@ namespace Assets.EntityTemplates
 {
     public class SwarmGoalEntityTemplate : MonoBehaviour
     {
-		private static float spawnDiameter = 20.0f;	//TODO: Have to find a way to connect this to global variable, tankSize
+		private static float tankSize = 20.0f;	//TODO: Have to find a way to connect this to global variable, tankSize
+		private static float tankHeight = 5.0f;
 		private static float goalSpeed = 1.0f;
 
         // Template definition for a Swarm Goal entity
 		public static SnapshotEntity GenerateGoalSnapshotEntityTemplate()
         {
 			//Spawn to a random position
-			Coordinates goalInitialCoordinates = new Coordinates (Random.Range (-spawnDiameter, spawnDiameter),
-				                             Random.Range (-spawnDiameter, spawnDiameter),
-				                             Random.Range (-spawnDiameter, spawnDiameter));
+			Coordinates goalInitialCoordinates = new Coordinates (Random.Range (-tankSize, tankSize),
+				Random.Range (0.0f, tankHeight),
+				Random.Range (-tankSize, tankSize));
 
 
 			Vector3f zero = new Vector3f ();
@@ -33,7 +34,7 @@ namespace Assets.EntityTemplates
 
             // Define components attached to snapshot entity
 			SwarmGoalEntity.Add(new WorldTransform.Data(new WorldTransformData(goalInitialCoordinates, zero, 0.0f)));
-			SwarmGoalEntity.Add (new GoalParameters.Data (new GoalParametersData (spawnDiameter, goalSpeed)));
+			SwarmGoalEntity.Add (new GoalParameters.Data (new GoalParametersData (tankSize, tankHeight, goalSpeed)));
 
 			//Alastair's recommendation:
 			var acl = Acl.Build()

@@ -24,7 +24,7 @@ namespace Assets.Gamelogic.Goal.Behaviours
 		[Require] private GoalParameters.Reader GoalParametersReader;
 
 		private Vector3 goalPos, newGoalPos = Vector3.zero;
-		private float tankSize, goalSpeed;
+		private float tankSize, tankHeight, goalSpeed;
 		private double getAwayRadius = 0.1;
 		private bool getAway;
 
@@ -37,6 +37,7 @@ namespace Assets.Gamelogic.Goal.Behaviours
 
 			tankSize = GoalParametersReader.Data.tanksize;
 			goalSpeed = GoalParametersReader.Data.goalspeed;
+			tankHeight = GoalParametersReader.Data.tankheight;
 			Debug.Log ("Goal Startup params: tankSize: " + tankSize + ", Goal Speed:" + goalSpeed);
 			
 		}
@@ -67,7 +68,7 @@ namespace Assets.Gamelogic.Goal.Behaviours
 				if ((Random.Range (0, 500) < 1) || getAway)
 				{
 					newGoalPos = new Vector3 (Random.Range (-tankSize, tankSize),
-						Random.Range (-tankSize, tankSize),
+						Random.Range (0.0f, tankHeight),
 						Random.Range (-tankSize, tankSize));			
 
 				}

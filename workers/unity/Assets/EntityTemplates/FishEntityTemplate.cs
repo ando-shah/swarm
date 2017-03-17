@@ -16,13 +16,14 @@ namespace Assets.EntityTemplates
 		private static UInt32 numFish = 20;
 		private static float initialSpeed = 3.0f;	
 		private static float tankSize = 20.0f;
+		private static float tankHeight = 5.0f;
         // Template definition for a Fish entity
         public static SnapshotEntity GenerateFishSnapshotEntityTemplate()
         {
 			//Spawn to a random position
 			Coordinates fishInitialCoordinates = new Coordinates (Random.Range (-tankSize, tankSize),
-				                             Random.Range (-tankSize, tankSize),
-				                             Random.Range (-tankSize, tankSize));
+				                            						Random.Range (0.0f, tankHeight),
+																	Random.Range (-tankSize, tankSize));
 
 			Vector3f fishInitialRotation = new Vector3f (Random.Range (-30, 30),
 				                                  Random.Range (-30, 30),
@@ -39,7 +40,7 @@ namespace Assets.EntityTemplates
 
             // Define components attached to snapshot entity
 			FishEntity.Add(new WorldTransform.Data(new WorldTransformData(fishInitialCoordinates, fishInitialRotation, speed)));
-			FishEntity.Add (new FishParameters.Data (new FishParametersData (numFish, initialSpeed, tankSize)));
+			FishEntity.Add (new FishParameters.Data (new FishParametersData (numFish, initialSpeed, tankSize, tankHeight)));
 
 			// Grant UnityWorker (server-side) workers write-access over all of this entity's components, read-access for visual (e.g. client) workers
 			//var acl = Acl.GenerateServerAuthoritativeAcl (FishEntity); //Does not currently work
