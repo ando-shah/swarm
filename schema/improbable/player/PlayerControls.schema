@@ -1,0 +1,19 @@
+package improbable.player;
+
+component PlayerControls{
+	//Schema file ID, unique within project
+	id = 1102;
+
+	// Exclude this component from spatial finds
+    option queryable = false;
+
+    //forward/back, left/right speeds
+    float key_vertical = 1;
+	float key_horizontal = 2;
+
+
+    //up/down, left/right rotations from mouse
+    float mouse_x = 3;
+    float mouse_y = 4;
+
+}

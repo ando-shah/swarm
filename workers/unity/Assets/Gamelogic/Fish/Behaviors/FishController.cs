@@ -66,7 +66,7 @@ namespace Assets.Gamelogic.Fish.Behaviours
 				return;
 			}
 
-			Debug.Log ("Goal found at pos (" + goalObj.transform.position + ")");
+			Debug.Log ("Goal found at pos: " + goalObj.transform.position);
 
 			//Check if it's too far from center
 			if( (transform.position.x >= tankSize)  || (transform.position.y >= tankSize) || (transform.position.z >= tankSize))

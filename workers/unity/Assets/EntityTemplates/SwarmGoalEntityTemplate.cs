@@ -13,7 +13,7 @@ namespace Assets.EntityTemplates
 {
     public class SwarmGoalEntityTemplate : MonoBehaviour
     {
-		private static float spawnDiameter = 50.0f;	//TODO: Have to find a way to connect this to global variable, tankSize
+		private static float spawnDiameter = 20.0f;	//TODO: Have to find a way to connect this to global variable, tankSize
 		private static float goalSpeed = 1.0f;
 
         // Template definition for a Swarm Goal entity

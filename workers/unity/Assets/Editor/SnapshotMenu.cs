@@ -19,10 +19,11 @@ public class SnapshotMenu : MonoBehaviour
         var snapshotEntities = new Dictionary<EntityId, SnapshotEntity>();
         var currentEntityId = 0;
 
-        //Return the number of Fish to be spawned, so that Goal knows about it, and get stored as a component
-		FishEntityTemplate.PopulateSnapshotWithFishEntities( ref snapshotEntities, ref currentEntityId);
+
+        FishEntityTemplate.PopulateSnapshotWithFishEntities( ref snapshotEntities, ref currentEntityId);
 		SwarmGoalEntityTemplate.PopulateSnapshotWithSwarmGoalEntities( ref snapshotEntities, ref currentEntityId);
-        SaveSnapshot(snapshotEntities);
+		snapshotEntities.Add(new EntityId(currentEntityId++), PlayerSpawnerEntityTemplate.GeneratePlayerSpawnerSnapshotEntityTemplate());
+		SaveSnapshot(snapshotEntities);
 
     }
 
