@@ -15,8 +15,8 @@ namespace Assets.EntityTemplates
     {
 		private static UInt32 numFish = 20;
 		private static float initialSpeed = 3.0f;	
-		private static float tankSize = 20.0f;
-		private static float tankHeight = 5.0f;
+		private static float tankSize = 5.0f;
+		private static float tankHeight = 2.0f;
         // Template definition for a Fish entity
         public static SnapshotEntity GenerateFishSnapshotEntityTemplate()
         {

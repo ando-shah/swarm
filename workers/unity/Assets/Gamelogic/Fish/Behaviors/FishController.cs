@@ -30,11 +30,11 @@ namespace Assets.Gamelogic.Fish.Behaviours
 		[Require] private WorldTransform.Writer WorldTransformWriter;
 		[Require] private FishParameters.Reader FishParametersReader;
 
-		public float maxSpeed = 3.5f;
+		public float maxSpeed = 3.0f;
 		public float angularSpeed = 10.0f;
-		public double neighborDistance = 5.0;  // The max distance to its closest neighbor, within which it will display swarming behavior
-		public float collisionDistance = 0.2f; // The minimum distance to its neighbors, at which it will avoid those fish
-
+		public double neighborDistance = 2.0;  // The max distance to its closest neighbor, within which it will display swarming behavior
+		public float collisionDistance = 0.4f; // The minimum distance to its neighbors, at which it will avoid those fish
+		public Vector3 returnPosition = new Vector3(0, 1,0);
 		//This will govern its current speed
 		private float speed;
 
@@ -60,6 +60,7 @@ namespace Assets.Gamelogic.Fish.Behaviours
 		public void Update()
 		{
 			//Assign the goalObj : originally done in start, but lots of random 'assigned to null reference' errprs propped up
+
 			goalEntity = new EntityId ((long)numFish);  //Since goal is created after all the fish, the entityID of the goal = numFish
 			goalObj = SpatialOS.Universe.Get(goalEntity).UnderlyingGameObject; 
 			if (goalObj == null) {
@@ -68,7 +69,7 @@ namespace Assets.Gamelogic.Fish.Behaviours
 				return;
 			}
 
-			Debug.Log ("Goal found at pos: " + goalObj.transform.position);
+			//Debug.Log ("Goal found at pos: " + goalObj.transform.position);
 
 			//Check if it's too far from center
 			if ((transform.position.x >= tankSize)   || (transform.position.x <= -tankSize) ||
@@ -120,11 +121,11 @@ namespace Assets.Gamelogic.Fish.Behaviours
 
 			SpatialOS.Commands.SendQuery(WorldTransformWriter, query, result => {
 				if (result.StatusCode != StatusCode.Success) {
-					Debug.Log("Query failed with error: " + result.ErrorMessage);
+					Debug.LogError("Query failed with error: " + result.ErrorMessage);
 					return;
 				}
 
-				Debug.Log("Found " + result.Response.Count + " nearby entities");
+				//Debug.Log("Found " + result.Response.Count + " nearby entities");
 				if (result.Response.Count < 1) {
 					return;  //No fish in range
 				}
@@ -159,7 +160,7 @@ namespace Assets.Gamelogic.Fish.Behaviours
 					//EntityId id = new EntityId (1003);
 					if(goalObj == null)
 					{
-						Debug.Log("Goal OBJ missing!");
+						Debug.LogError("Goal OBJ missing!");
 						return;
 					}
 
@@ -168,11 +169,11 @@ namespace Assets.Gamelogic.Fish.Behaviours
 					vCenter = (vCenter / groupSize) + (goalPos - this.transform.position);
 					speed = groupSpeed/groupSize;
 
-					Debug.Log("Goal Pos : (" + goalPos.x + "," + goalPos.y + "," + goalPos.z + ")" + " Center ("+ vCenter.x + "," + vCenter.y + "," + vCenter.z + ")" + " GroupSize: " + groupSize + " Speed: " + speed);
+					Debug.Log("Fish #" + gameObject.EntityId().Id + " : Goal Pos : " + goalPos + " Center "+ vCenter+ " GroupSize: " + groupSize + " Speed: " + speed);
 
 
 					//Clamp max speed, in case it spirals out of control
-					//speed = Mathf.Clamp (speed, initialSpeed, maxSpeed);
+					speed = Mathf.Clamp (speed, 0.0f, maxSpeed);
 
 					//Set it's orientation
 					//Relative Position (or direction) = Target position (i.e. vCenter - vAvoid) minus current position
@@ -198,7 +199,10 @@ namespace Assets.Gamelogic.Fish.Behaviours
 		private void ApplyReturn()
 		{
 			//Towards the center of the tank
-			Vector3 direction = Vector3.zero - this.transform.position; 
+			Debug.Log ("Fish #" + gameObject.EntityId ().Id + " @ (" + transform.position + ") turning around");
+
+			//Vector3 direction = Vector3.zero - this.transform.position; 
+			Vector3 direction =  returnPosition - this.transform.position; 
 
 			//Slowly turn in that direction
 			transform.rotation = Quaternion.Slerp ( this.transform.rotation,
@@ -208,6 +212,8 @@ namespace Assets.Gamelogic.Fish.Behaviours
 			//reset speed:
 			//speed = Random.Range (startingSpeed/2.0f, startingSpeed);	
 			speed = Mathf.Lerp (speed, FishParametersReader.Data.initialspeed, Time.deltaTime);
+
+
 			
 		}
 
