@@ -10,7 +10,7 @@ using UnityEditor;
 public class SnapshotMenu : MonoBehaviour
 {
     private static readonly string InitialWorldSnapshotPath = Application.dataPath +
-                                                              "/../../../snapshots/initial_world.snapshot";
+                                                              "/../../../snapshots/default.snapshot";
 
     [MenuItem("Improbable/Snapshots/Generate Snapshot Programmatically")]
     [UsedImplicitly]
