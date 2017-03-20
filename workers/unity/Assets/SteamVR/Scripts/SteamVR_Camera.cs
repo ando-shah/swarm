@@ -31,15 +31,24 @@ public class SteamVR_Camera : MonoBehaviour
 
 	public bool wireframe = false;
 
-	static public float sceneResolutionScale
+#if UNITY_STANDALONE_LINUX
+    static public float sceneResolutionScale
+    {
+        get {
+            return 1f;
+        }
+        set {}
+    }
+#else
+    static public float sceneResolutionScale
 	{
 		get { return UnityEngine.VR.VRSettings.renderScale; }
 		set { UnityEngine.VR.VRSettings.renderScale = value; }
 	}
+#endif
+    #region Enable / Disable
 
-	#region Enable / Disable
-
-	void OnDisable()
+    void OnDisable()
 	{
 		SteamVR_Render.Remove(this);
 	}
@@ -94,9 +103,9 @@ public class SteamVR_Camera : MonoBehaviour
 		SteamVR_Render.Add(this);
 	}
 
-	#endregion
+#endregion
 
-	#region Functionality to ensure SteamVR_Camera component is always the last component on an object
+#region Functionality to ensure SteamVR_Camera component is always the last component on an object
 
 	void Awake()
 	{
@@ -151,9 +160,9 @@ public class SteamVR_Camera : MonoBehaviour
 		}
 	}
 
-	#endregion
+#endregion
 
-	#region Expand / Collapse object hierarchy
+#region Expand / Collapse object hierarchy
 
 #if UNITY_EDITOR
 	public bool isExpanded { get { return head != null && transform.parent == head; } }
@@ -272,6 +281,6 @@ public class SteamVR_Camera : MonoBehaviour
 			name = name.Substring(0, name.Length - eyeSuffix.Length);
 	}
 
-	#endregion
+#endregion
 }
 

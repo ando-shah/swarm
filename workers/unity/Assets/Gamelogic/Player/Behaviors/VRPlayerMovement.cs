@@ -9,13 +9,12 @@ using Improbable.Collections;
 
 namespace Assets.Gamelogic.Player.Behaviours
 {
-    // This MonoBehaviour will be enabled on both client and server-side workers
+    // This MonoBehaviour will be enabled on only client-side workers
+    [WorkerType(WorkerPlatform.UnityClient)]
     public class VRPlayerMovement : MonoBehaviour
     {
 
-        /* This class takes the postion and orientation from another source, such as PlayerController,
-		 * and applies it to the GameObject that this is attached to.
-		 * It also updates the WorldTransform entity that this is attached to. 
+        /*It updates the WorldTransform entity that this is attached to. 
 		*/
 
         [Require]
@@ -23,7 +22,8 @@ namespace Assets.Gamelogic.Player.Behaviours
         // Inject access to the entity's PlayerControls component
         //[Require]
         //protected PlayerControls.Reader PlayerControlsReader;
-
+        
+        private Transform ChildObject;
         // Use this for initialization
         void OnEnable()
         {
@@ -34,6 +34,21 @@ namespace Assets.Gamelogic.Player.Behaviours
 
 
         }
+
+        /*
+        void Start()
+        {
+            
+            ChildObject = transform.Find("[CameraRig]");
+            if (ChildObject == null)
+            {
+                Debug.LogError("Didnt find SteamVR CameraRig!!");
+                return;
+            }
+            Debug.Log("Enabling SteamVR CameraRig");
+
+            ChildObject.gameObject.SetActive(true);
+        }*/
         
         // Update is called once per frame
         void Update()
