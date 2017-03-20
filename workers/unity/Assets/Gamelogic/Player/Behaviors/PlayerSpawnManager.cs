@@ -40,7 +40,7 @@ namespace Assets.Gamelogic.Player.Behaviours
 
 			var playerEntityTemplate = PlayerEntityTemplate.GeneratePlayerEntityTemplate(Handle.CallerInfo.CallerWorkerId,
                  Handle.Request.initialPosition);
-            SpatialOS.Commands.CreateEntity(SpawnerWriter, "Player", playerEntityTemplate, result =>
+            SpatialOS.Commands.CreateEntity(SpawnerWriter, "PlayerVR2", playerEntityTemplate, result =>
             {
                 if (result.StatusCode != StatusCode.Success)
                 {

@@ -48,3 +48,6 @@ sysinfo.txt
 *.unitypackage
 
 .idea/
+
+#To prevent cross platform issues
+ProjectSettings/ProjectSettings.asset
