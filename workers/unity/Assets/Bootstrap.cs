@@ -51,7 +51,7 @@ public class Bootstrap : MonoBehaviour
 
             SpatialOS.WorkerCommands.SendCommand(Spawner.Commands.SpawnPlayer.Descriptor,
                                                  new SpawnPlayerRequest(SpatialOS.Configuration.WorkerId,
-                                                 new Coordinates(0.0f, 0.1f, 0.0f)),                     //Initial Position of player
+                                                 new Coordinates(0f, 0f, 0f)),                     //Initial Position of player
                                                  playerSpawnerEntityId.Value,
                                                  result =>
                 {

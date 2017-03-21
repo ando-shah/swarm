@@ -24,6 +24,8 @@ namespace Assets.Gamelogic.Player.Behaviours
         //protected PlayerControls.Reader PlayerControlsReader;
         
         private Transform ChildObject;
+        private Transform CameraHeadObject;
+
         // Use this for initialization
         void OnEnable()
         {
@@ -35,10 +37,10 @@ namespace Assets.Gamelogic.Player.Behaviours
 
         }
 
-        /*
+        
         void Start()
         {
-            
+            //This is done so that the SteamVR camera rig is enabled only on the Client-side
             ChildObject = transform.Find("[CameraRig]");
             if (ChildObject == null)
             {
@@ -48,7 +50,15 @@ namespace Assets.Gamelogic.Player.Behaviours
             Debug.Log("Enabling SteamVR CameraRig");
 
             ChildObject.gameObject.SetActive(true);
-        }*/
+
+            CameraHeadObject = ChildObject.Find("Camera (eye)");
+            if (CameraHeadObject == null)
+            {
+                Debug.LogError("Didnt find SteamVR Camera Head!!");
+                return;
+            }
+            Debug.Log("Found Camera Head");
+        }
         
         // Update is called once per frame
         void Update()
@@ -57,9 +67,14 @@ namespace Assets.Gamelogic.Player.Behaviours
             Vector3 temp = transform.rotation.eulerAngles;
             Improbable.Math.Vector3f sendRot = new Improbable.Math.Vector3f(temp.x, temp.y, temp.z);
 
+            //To take care of teleports
+            Vector3 pos = transform.position + CameraHeadObject.position;
+
             //Update it's component values
+            //Note : the player doesnt move as the person in VR walks around. In order to get the final
+            //Cooridnates, we use the sum of player+player.[CameraRig].Camera(head)
             WorldTransformWriter.Send(new WorldTransform.Update()
-                .SetPosition(transform.position.ToCoordinates())
+                .SetPosition(pos.ToCoordinates())
                 .SetRotation(sendRot)
                 .SetSpeed(0.0f)
             );
