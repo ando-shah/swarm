@@ -44,6 +44,7 @@ namespace Assets.Gamelogic.Fish.Behaviours
 		private EntityId goalEntity;
 		private float numFish;
 		private float tankSize, tankHeight;
+        public Animator anim;
 
 		public void OnEnable()
 		{
@@ -55,6 +56,12 @@ namespace Assets.Gamelogic.Fish.Behaviours
 
 
 			Debug.Log("Fish Startup Params: speed:" + speed + ", NumFish: " + numFish + ", Tank Size: " +tankSize );
+
+            //anim = GetComponent<Animator>();
+            if (anim == null)
+                Debug.LogError("Animator not found on fish!");
+            else
+                Debug.Log("Animator Found");
 		}
 
 		public void Update()
@@ -88,6 +95,9 @@ namespace Assets.Gamelogic.Fish.Behaviours
 			//Move the fish according to it's current speed value
 			transform.Translate(0,0,Time.deltaTime * speed);
 
+            //Change the animation speed accordingly
+            anim.speed = speed;
+
 			//Broadcast it's component values
 			WorldTransformWriter.Send (new WorldTransform.Update ()
 				.SetPosition (transform.position.ToCoordinates ())
@@ -116,12 +126,9 @@ namespace Assets.Gamelogic.Fish.Behaviours
 			Vector3 vAvoid = Vector3.zero;
 
 
-
-
-
 			SpatialOS.Commands.SendQuery(WorldTransformWriter, query, result => {
 				if (result.StatusCode != StatusCode.Success) {
-					Debug.LogError("Query failed with error: " + result.ErrorMessage);
+					Debug.LogError("Query for nearby fish failed with error: " + result.ErrorMessage);
 					return;
 				}
 
