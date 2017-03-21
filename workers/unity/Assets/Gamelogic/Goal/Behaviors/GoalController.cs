@@ -65,7 +65,7 @@ namespace Assets.Gamelogic.Goal.Behaviours
 					getAway = true;
 				}
 						
-				if ((Random.Range (0, 500) < 1) || getAway)
+				if ((Random.Range (0, 500) < 1) || (getAway && avoidFish))
 				{
 					newGoalPos = new Vector3 (Random.Range (-tankSize, tankSize),
 						Random.Range (0.0f, tankHeight),

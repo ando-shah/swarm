@@ -43,7 +43,7 @@ namespace Assets.Gamelogic.Fish.Behaviours
 		private GameObject goalObj;
 		private EntityId goalEntity;
 		private float numFish;
-		private float tankSize, tankHeight;
+		private float tankSize, tankHeight, initialSpeed;
         public Animator anim;
 
 		public void OnEnable()
@@ -53,7 +53,7 @@ namespace Assets.Gamelogic.Fish.Behaviours
 			numFish = FishParametersReader.Data.numfish;
 			tankSize = FishParametersReader.Data.tanksize;
 			tankHeight = FishParametersReader.Data.tankheight;
-
+            initialSpeed = FishParametersReader.Data.initialspeed;
 
 			Debug.Log("Fish Startup Params: speed:" + speed + ", NumFish: " + numFish + ", Tank Size: " +tankSize );
 
@@ -110,8 +110,10 @@ namespace Assets.Gamelogic.Fish.Behaviours
 
 		private void ApplySwarmMechanics()
 		{
-			var query = Query.InSphere(transform.position.x, transform.position.y, transform.position.z, neighborDistance).ReturnOnlyEntityIds();
-			int groupSize = 0;
+			
+
+
+            int groupSize = 0;
 			float groupSpeed = 0.0f;
 
 
@@ -124,9 +126,15 @@ namespace Assets.Gamelogic.Fish.Behaviours
 
 			//Vector that avoids other fish
 			Vector3 vAvoid = Vector3.zero;
+            
+            //Setup query to find all other boids within a radius
+            var query = Query.And(
+                                Query.HasComponent<FishParameters>(),
+                                Query.InSphere(transform.position.x, transform.position.y, transform.position.z, neighborDistance)
+                                ).ReturnOnlyEntityIds();
+                        
 
-
-			SpatialOS.Commands.SendQuery(WorldTransformWriter, query, result => {
+            SpatialOS.Commands.SendQuery(WorldTransformWriter, query, result => {
 				if (result.StatusCode != StatusCode.Success) {
 					Debug.LogError("Query for nearby fish failed with error: " + result.ErrorMessage);
 					return;
@@ -142,9 +150,11 @@ namespace Assets.Gamelogic.Fish.Behaviours
 				{
 					EntityId idRef = item.Key;
 
-					if (idRef.Id == numFish)  //i.e. == goal
+					/*if (idRef.Id == numFish)  //i.e. == goal
 						continue;
-					
+					*/
+                    
+
 					//GameObject otherFish = SpatialOS.Universe.Get(idRef).UnderlyingGameObject; // this works also
 					Vector3 otherFishPos = SpatialOS.GetLocalEntityComponent<WorldTransform>(idRef).Get().Value.position.ToVector3();
 					float otherSpeed     = SpatialOS.GetLocalEntityComponent<WorldTransform>(idRef).Get().Value.speed;
@@ -218,7 +228,7 @@ namespace Assets.Gamelogic.Fish.Behaviours
 
 			//reset speed:
 			//speed = Random.Range (startingSpeed/2.0f, startingSpeed);	
-			speed = Mathf.Lerp (speed, FishParametersReader.Data.initialspeed, Time.deltaTime);
+			speed = Mathf.Lerp (speed, initialSpeed, Time.deltaTime);
 
 
 			
