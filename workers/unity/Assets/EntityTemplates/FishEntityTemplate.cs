@@ -34,8 +34,7 @@ namespace Assets.EntityTemplates
 			//float fishInitialSpeed = Random.Range (initialSpeed / 2.0f, initialSpeed);
 
             // Set name of Unity prefab associated with this entity
-            //var FishEntity = new SnapshotEntity { Prefab = "ExampleEntity" };
-			var FishEntity = new SnapshotEntity { Prefab = "Fish" };
+            var FishEntity = new SnapshotEntity { Prefab = "Fish" };
 
 
             // Define components attached to snapshot entity
@@ -43,13 +42,13 @@ namespace Assets.EntityTemplates
 			FishEntity.Add (new FishParameters.Data (new FishParametersData (numFish, initialSpeed, tankSize, tankHeight)));
 
 			// Grant UnityWorker (server-side) workers write-access over all of this entity's components, read-access for visual (e.g. client) workers
-			//var acl = Acl.GenerateServerAuthoritativeAcl (FishEntity); //Does not currently work
+			var acl = Acl.GenerateServerAuthoritativeAcl (FishEntity); //Does not currently work
 
 			//Alastair's recommendation:
-			var acl = Acl.Build()
+			/*var acl = Acl.Build()
 				.SetReadAccess(CommonRequirementSets.PhysicsOrVisual)
 				.SetWriteAccess<WorldTransform>(CommonRequirementSets.PhysicsOnly)
-				.SetWriteAccess<FishParameters>(CommonRequirementSets.PhysicsOnly);
+				.SetWriteAccess<FishParameters>(CommonRequirementSets.PhysicsOnly);*/
 
 			FishEntity.SetAcl(acl);
 

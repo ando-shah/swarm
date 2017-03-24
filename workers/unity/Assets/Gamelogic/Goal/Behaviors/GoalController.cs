@@ -27,23 +27,60 @@ namespace Assets.Gamelogic.Goal.Behaviours
 		private float tankSize, tankHeight, goalSpeed;
 		private double getAwayRadius = 0.1;
 		private bool getAway;
-
+        private bool reachedDestination = false;
 
 		public bool avoidFish = true;
 
 
 		// Use this for initialization
-		void Start () {
+		void OnEnable () {
 
 			tankSize = GoalParametersReader.Data.tanksize;
 			goalSpeed = GoalParametersReader.Data.goalspeed;
 			tankHeight = GoalParametersReader.Data.tankheight;
 			Debug.Log ("Goal Startup params: tankSize: " + tankSize + ", Goal Speed:" + goalSpeed);
-			
-		}
-		
-		// Update is called once per frame
-		void Update () 
+
+            transform.position = WorldTransformWriter.Data.position.ToVector3();
+            reachedDestination = true;
+        }
+
+        void Update()
+        {
+            //Condition to pick a new destination
+            if ((Random.Range(0, 100) < 1) && (reachedDestination == true))
+            {
+                newGoalPos = new Vector3(Random.Range(-tankSize, tankSize),
+                        Random.Range(0.0f, tankHeight),
+                        Random.Range(-tankSize, tankSize));
+
+                reachedDestination = false;
+            }
+
+
+            if(!reachedDestination)
+            {
+                float step = goalSpeed * Time.deltaTime;
+                goalPos = Vector3.MoveTowards(transform.position, newGoalPos, step);
+                //goalPos = Vector3.Lerp(transform.position, newGoalPos, step);
+                //transform.Translate()
+                //Apply it to the object
+                //this.transform.position.Set(goalPos.x, goalPos.y,goalPos.z);
+                transform.position = goalPos;
+
+                //Check whether its reached there
+                if (Vector3.Distance(goalPos, newGoalPos) <= 0.01f)
+                    reachedDestination = true;
+
+            }
+
+            WorldTransformWriter.Send(new WorldTransform.Update()
+                .SetPosition(transform.position.ToCoordinates()));
+
+        }
+
+
+        // Update is called once per frame
+        /*void Update () 
 		{
 			//Do Some intelligent checking to see if the any fish are approaching the goal
 			//If so, get away!
@@ -65,7 +102,7 @@ namespace Assets.Gamelogic.Goal.Behaviours
 					getAway = true;
 				}
 						
-				if ((Random.Range (0, 500) < 1) || getAway)
+				if ((Random.Range (0, 500) < 1) || (getAway && avoidFish))
 				{
 					newGoalPos = new Vector3 (Random.Range (-tankSize, tankSize),
 						Random.Range (0.0f, tankHeight),
@@ -82,16 +119,25 @@ namespace Assets.Gamelogic.Goal.Behaviours
 
 			});
 			
-		}
-	}
+		}*/
 
-	public static class Vector3Extensions
+
+
+
+    }
+
+    public static class Vector3Extensions
 	{
 		public static Coordinates ToCoordinates(this Vector3 vector3)
 		{
 			return new Coordinates(vector3.x, vector3.y, vector3.z);
 		}
-	}
+
+        public static Vector3 ToVector3(this Coordinates coordinates)
+        {
+            return new Vector3((float)coordinates.X, (float)coordinates.Y, (float)coordinates.Z);
+        }
+    }
 
 
 }

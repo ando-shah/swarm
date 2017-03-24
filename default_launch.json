@@ -6,8 +6,8 @@
       "snapshotWritePeriodSeconds": 0
     },
     "dimensions": {
-      "xMeters": 8000,
-      "zMeters": 8000
+      "xMeters": 100,
+      "zMeters": 100
     }
   },
   "workers": [
