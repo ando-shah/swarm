@@ -30,6 +30,7 @@ In this tutorial, we will set up a VR enabled (HTC Vive) simulation of a swarm.
 Skills required: 
 
 a. Basic Unity/C#
+
 b. SpatialOS
 
 You will need to familiarize yourself with the basics of SpatialOS, which is a key component of this tutorial.
@@ -45,8 +46,10 @@ So what is a swarm, and why simulate it?
 Swarms are really interesting because at a micro level, they follows extremely simple rules, but at a macro level, the effects look very sophisticated and frankly, awe-inspiring!
 
 Just look at these guys:
-<insert gif of a murmuration>
-Above : A 'murmuration' of starlings . A poet probably came up with that name. 
-Murmurations are a more complex subset of flocking or swarming behavior.
+
+![Starlings Murmurations](/images/starling-murmurations.gif)
+
+_Above : A 'murmuration' of starlings . A poet probably came up with that name. 
+Murmurations are a more complex subset of flocking or swarming behavior._
 
 
