@@ -15,7 +15,7 @@ namespace Assets.EntityTemplates
     {
 		private static UInt32 numFish = 200;
 		private static float initialSpeed = 3.0f;	
-		private static float tankSize = 25.0f;
+		private static float tankSize = 24.0f;
 		private static float tankHeight = 4.0f;
         // Template definition for a Fish entity
         public static SnapshotEntity GenerateFishSnapshotEntityTemplate()
@@ -42,9 +42,9 @@ namespace Assets.EntityTemplates
 			FishEntity.Add (new FishParameters.Data (new FishParametersData (numFish, initialSpeed, tankSize, tankHeight)));
 
 			// Grant UnityWorker (server-side) workers write-access over all of this entity's components, read-access for visual (e.g. client) workers
-			var acl = Acl.GenerateServerAuthoritativeAcl (FishEntity); //Does not currently work
+			var acl = Acl.GenerateServerAuthoritativeAcl (FishEntity);
 
-			//Alastair's recommendation:
+			//Alastair's recommendation: seems to have an issue
 			/*var acl = Acl.Build()
 				.SetReadAccess(CommonRequirementSets.PhysicsOrVisual)
 				.SetWriteAccess<WorldTransform>(CommonRequirementSets.PhysicsOnly)
