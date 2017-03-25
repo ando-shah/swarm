@@ -17,17 +17,19 @@
         "dynamic_loadbalancer": {
           "worker_scaler_config": {
             "constant_config": {
-              "num_workers": 8
+              "num_workers": 16
             }
           },
           "worker_placer_config": {
-            "random_params": {}
+             "auto_hex_grid_params": {
+			 "num_workers": 16
+			}
           },
           "loadbalancer_config": {
             "min_range_meters": 5.0,
             "max_range_meters": 25.0,
-            "speed_meters_per_second": 100.0,
-            "expansion_time_millis": 1000
+            "speed_meters_per_second": 10.0,
+            "expansion_time_millis": 10000
           }
         } 
       },
