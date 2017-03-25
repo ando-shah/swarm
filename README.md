@@ -142,15 +142,23 @@ Reality scale simulation. That's pretty cool!
 
 Now, onto the fun stuff. Lets get a swarm going.
 
+#### Control Flow for Boids (server)
+Each swarming entity in the system is called a boid, and in this tutorial I have a model of a fish, with corresponding animation of it swimming, which we will use for the visuatlization. You can replace this with a dragon, drone or a daikon radish.
 
-Lets talk about how the system has been architectured. I've followed PiratesTutorial as an example, and built on top of that. For example, the PlayerShip in PiratesTutuorial is built like this:
-![PlayerShip](/images/SwarmTutorial-BlockDiagrams-Pirates-Player.jpeg)
+We need 2 main entities:
+ * Fish
+ * Goal
+ 
 
 
-<insert image>
+
+The code is on GitHub here. Please check out the [tag v0.1](https://github.com/ananda13/swarm/releases/tag/v0.1), if you want to start with some basics and add on the rest yourself. Otherwise check out the [latest](https://github.com/ananda13/swarm/) [*Recommended*].
 
 
-The code is on GitHub here. Please check out the [tag v0.1](https://github.com/ananda13/swarm/releases/tag/v0.1), if you want to start with some basics and add on the rest yourself. Otherwise check out the [latest](https://github.com/ananda13/swarm/).
+Using a similar architecture, we create a Player prefab for our simulation, which represents the user who has logged in to view (and possibly interact) with the simulation.
+
+
+
 
 #### Setup
 
@@ -264,6 +272,22 @@ Up until now you have built a simulation from scratch on top of spatialOS, and h
 Now we'll plug in a client, that will let you watch from inside the game engine, and then plug in your HTC Vive headset!
 
 Onward, and upward!
+
+#### Data Flow For Players (client)
+
+I've followed PiratesTutorial as an example, and built on top of that. For example, the PlayerShip in PiratesTutuorial is built like this:
+![PlayerShip](/images/SwarmTutorial-BlockDiagrams-Pirates-Player.jpeg)
+
+
+This is a data flow diagram for the PlayerShip entity. Player input (keyboard: WASD,etc) is recorded by the PlayerInput.cs script, which runs on the client only, as denoted by:
+```
+[WorkerType(WorkerPlatform.UnityClient)]
+```
+This is then written into the component ShipControls, as defined in schema/improbable/ship/ShipControls.schema
+This data is then read, every frame, by ShipController.cs, which modifies the inputs : inputSpeed & inputSteering into targetSpeed & targetSteering. These 2 variables, in turn are read by ShipMovement.cs, and it is applied to the 3D model of the ship.
+
+These 3 scripts: PlayerInput.cs, ShipController.cs & ShipMovement.cs are attached to the GameObject PlayerShip (and hence the prefab).
+
 
 
 #### A. Setting up the client.
