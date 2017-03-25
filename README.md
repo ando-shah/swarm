@@ -143,7 +143,8 @@ Reality scale simulation. That's pretty cool!
 Now, onto the fun stuff. Lets get a swarm going.
 
 
-Visually, this is how I've architected the simulation:
+Lets talk about how the system has been architectured. I've followed PiratesTutorial as an example, and built on top of that. For example, the PlayerShip in PiratesTutuorial is built like this:
+![PlayerShip](/images/SwarmTutorial-BlockDiagrams-Pirates-Player.jpeg)
 
 
 <insert image>
