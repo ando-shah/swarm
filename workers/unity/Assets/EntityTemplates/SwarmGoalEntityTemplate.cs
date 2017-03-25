@@ -13,7 +13,7 @@ namespace Assets.EntityTemplates
 {
     public class SwarmGoalEntityTemplate : MonoBehaviour
     {
-		private static float tankSize = 5.0f;	//TODO: Have to find a way to connect this to global variable, tankSize
+		private static float tankSize = 25.0f;	//TODO: Have to find a way to connect this to global variable, tankSize
 		private static float tankHeight = 4.0f;
 		private static float goalSpeed = 1.0f;
 
