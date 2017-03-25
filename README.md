@@ -150,16 +150,25 @@ Visually, this is how I've architected the simulation:
 
 The code is on GitHub here. Please check out the [tag v0.1](https://github.com/ananda13/swarm/releases/tag/v0.1), if you want to start with some basics and add on the rest yourself. Otherwise check out the [latest](https://github.com/ananda13/swarm/).
 
-The main files to use are:
+#### Setup
 
+Modify spatialOS.json in your project root directory as follows (*this is a critical step*):
 
-BUILD
+* Change the "name" to your account name provided by Improbable
+* Change both the "sdk_version" & "version" to the SpatialOS SDK version to the one you are using (e.g. "10.1.1")
+If you are *not* on the same SDK version that this project has been written for (at the time of writing it was on 10.x), you will need to follow the upgrade guide to make changes to the code. [Instructions here](https://spatialos.improbable.io/docs/reference/10.1/releases/upgrade-guides/how-to-upgrade-10). Please use the upgrade guide from the version you are currently on, and not the one that is linked above.
+
+#### Build
+##### Development
+<br />
 
 This is a local build, also known as a development build, in spatialOS.
 
 If you're on Windows, use the Improbable drop down menu within Unity to run these functions, and if you're on Mac, use command line on terminal. In fact, as of the date of writing this, if you dont follow the above convention, you _may_ run into strange compile errors.
+<br />
 
-Build (Mac):
+*Mac*:
+<br />
 
 ```
 $ spatial worker build --target=development
@@ -167,23 +176,43 @@ $ spatial worker build --target=development
 
 Launch locally:
 ```
-$ spatial local launch --snapshot=snapshots/initial_world.snapshot 	
+$ spatial local launch --snapshot=snapshots/default.snapshot 	
 ```
+<br />
 
-(Windows)
+*Windows*
+<br />
+
 Window > SpatialOS 
+![Improbable Menu](/images/Improbable_menu_full.jpg)
 
 
-
+ - Window > SpatialOS 
+ - Click on Player Target > Development
+ - Click on 'Codegen' (If you've changed any .schema files)
+ - Improbable > Snapshots > Generate Snapshot Programatically (this executes the file /Assets/Editor/SnapshotMenu.cs)
+ - Improbable > Prefabs > Export All Entity Prefabs (this exports all the prefabs in the folder /Assets/EntityPrefabs)
+ - Back to the Spatial Menu
+ - Click on 'Build'
+ - Click on the drop-down 'Run Spatial Locally' > 'Run'
+ 
+ 
 In a browser window navigate to:
 http://localhost:21000/inspector
+<br />
+You should see something like this:<br />
+
+![Inspector View](/images/swarm-improbable-inspector-1.gif)
+<br />
+<br />
 
 
+##### Deployment
 
+<br />
 
-DEPLOYMENT
-
-run
+*Mac*
+<br />
 
 Create the deployment assets, specifically for cloud deployment
 ```
@@ -201,15 +230,29 @@ For example:
 $ spatial cloud launch SwarmSimAssembly default_launch.json swarm --snapshot=snapshots/initial_world.snapshot 
 ```
 
+<br />
+
+*Windows*
+<br />
+ - Window > SpatialOS 
+ - Click on Player Target > Deployment
+ - Click on 'Codegen' (If you've changed any .schema files)
+ - Improbable > Snapshots > Generate Snapshot Programatically (this executes the file /Assets/Editor/SnapshotMenu.cs)
+ - Improbable > Prefabs > Export All Entity Prefabs (this exports all the prefabs in the folder /Assets/EntityPrefabs)
+ - Back to the Spatial Menu
+ - Click on 'Build'
+ - Click on 'Spatial upload' > And type in an assemly name, like 'SwarmSimAssembly' > Upload (this uploads the assembly that you generated in the build step, to your spatial account)
+ - At the time of writing, there isn't a way to actually launch the deployment from within Unity. You will have to open up a shell, such as PowerShell, navigate to the root folder, and type the following:
+ ```
+ $ spatial cloud launch SwarmSimAssembly default_launch.json swarm --snapshot=snapshots/default.snapshot
+ ```
+
+
+
 Check it out:
 Open https://console.improbable.io/projects.
 <br />
 
-You should see something like this:<br />
-
-![Inspector View](/images/swarm-improbable-inspector-1.gif)
-
-<br />
 
 
 
