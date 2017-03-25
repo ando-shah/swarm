@@ -118,6 +118,7 @@ Provides all the rules that each entity follows. This is the embodiment of the 4
 <br />
 <br />
 <br />
+
 ## PART II
 ### Plug Into Improbable
 
@@ -164,7 +165,7 @@ If you are *not* on the same SDK version that this project has been written for 
 
 This is a local build, also known as a development build, in spatialOS.
 
-If you're on Windows, use the Improbable drop down menu within Unity to run these functions, and if you're on Mac, use command line on terminal. In fact, as of the date of writing this, if you dont follow the above convention, you _may_ run into strange compile errors.
+If you're on Windows, use the Improbable drop down menu within the Unity Editor to run these functions, and if you're on Mac, use command line on terminal. In fact, as of the date of writing this, if you dont follow the above convention, you _may_ run into strange compile errors.
 <br />
 
 *Mac*:
@@ -254,13 +255,10 @@ Open https://console.improbable.io/projects.
 <br />
 
 
-
-
-
 ## PART III
 ### Get Into VR
 
-Up until now you have built a simulation from scratch on top of spatialOS, and have watched it mesmerize you with the simple beauty of swarming behavior, a murmuration even.
+Up until now you have built a simulation from scratch on top of spatialOS, and have watched it mesmerize you with the simple beauty of swarming behavior, from within the inspector in 2D.
 
 Now we'll plug in a client, that will let you watch from inside the game engine, and then plug in your HTC Vive headset!
 
