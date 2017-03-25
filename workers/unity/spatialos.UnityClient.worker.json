@@ -11,7 +11,7 @@
     },
     "entity_interest": {
       "range_entity_interest": {
-        "radius": 200
+        "radius": 50
       }
     },
     "streaming_query": [],

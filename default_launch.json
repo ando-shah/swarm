@@ -1,13 +1,13 @@
 {
   "template": "small",
   "world": {
-    "chunkEdgeLengthMeters": 50,
+    "chunkEdgeLengthMeters": 25,
     "snapshots": {
       "snapshotWritePeriodSeconds": 0
     },
     "dimensions": {
-      "xMeters": 100,
-      "zMeters": 100
+      "xMeters": 50,
+      "zMeters": 50
     }
   },
   "workers": [
@@ -17,17 +17,17 @@
         "dynamic_loadbalancer": {
           "worker_scaler_config": {
             "constant_config": {
-              "num_workers": 4
+              "num_workers": 8
             }
           },
           "worker_placer_config": {
             "random_params": {}
           },
           "loadbalancer_config": {
-            "min_range_meters": 500.0,
-            "max_range_meters": 5000.0,
+            "min_range_meters": 5.0,
+            "max_range_meters": 25.0,
             "speed_meters_per_second": 100.0,
-            "expansion_time_millis": 60000
+            "expansion_time_millis": 1000
           }
         } 
       },
