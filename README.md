@@ -448,7 +448,7 @@ Follow changes on [GitHub](https://github.com/ananda13/swarm)<br />
 
 Follow the [Improbable Forum](https://forums.improbable.io/)<br />
 
-You can also find my work on [my website](www.ando.xyz)<br />
+You can also find my work on [my website](http://www.ando.xyz)<br />
 
 
 Let me know if you've made a simulation with Spatial! I'd love to check it out!
