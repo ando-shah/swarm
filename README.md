@@ -370,6 +370,25 @@ Thereafter, build for deployment, create assembly and launch into the cloud, and
 
 #### B. Adding SteamVR
 
+Changes to integrate SteamVR :
+
+- PlayerVR (prefab)
+	- VRPlayerMovement.cs : We enable this only on the Client Side, as we do not want SteamVR running on the servers. In Start(), we look to make sure the [CameraRig] object (default SteamVR prefab name) is available on this GameObject. You can do this by making the [CameraRig] prefab, a child of the an empty gameobject, called PlayerVR, and making that a prefab. We only enable SteamVR camera if it is attached to this player. This is a safeguard that prevents clients from running steamVR when theyre not supposed to.
+	- PlayerSpawnManager.cs : Change the name of the prefab to spawn to "PlayerVR" instead of "Player"
+	Change scripts that are part of SteamVR, so they dont run on the server side. 
+	- SteamVR.cs:
+	- SteamVR_Camera.cs:
+		- Add Teleport capability : This is done quite easily by adding the following scripts to either, or both, of your controllers:
+		- SteamVR_LaserPointer.cs
+		- SteamVR_Teleporter.cs
+
+
+
+### Optimizing Workers
+
+We will need to optimize the workers for the way the world is designed and the special needs of a swarm. With the way spatialOS distributes load across workers, is spatially! Of course this comes with the assumption that load is spread out on average spatially. However, this is not true for swarms, as they can cluster heavily in one region, and overload the Unity worker. This can result is freezing motion, or the unity worker completely giving up.
+One workaround for this, which Im still fine-tuning, is to have more workers cover less ground each, so that as the swarm moves through the area, it is already getting split between multiple workers. This will also stress test how handoffs happen between adjacent workers. This is not an ideal workaround, and if you find better ways of managing this, please drop me a line, Id like to learn more as well.
+
 
 
 
