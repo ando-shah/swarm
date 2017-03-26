@@ -286,11 +286,13 @@ Up until now you have built a simulation from scratch on top of spatialOS, and h
 
 Now we'll plug in a client, that will let you watch from inside the game engine, and then plug in your HTC Vive headset!
 
-Onward, and upward!
+If you don't have a VR headset, you can follow the first half of this section to understand how to enable a client viewer, that can move about in the space. If you have a PC-based VR headset, like the HTC Vive or Oculus Rift, the second section will be useful to you.
 
-#### Data Flow For Players (client)
+### A. Client View
+---
+#### Control Flow For Players In PiratesTutorial
 
-I've followed PiratesTutorial as an example, and built on top of that. For example, the PlayerShip in PiratesTutuorial is built like this:
+I've been using PirateTutorial as a reference, to build the swarm tutorial. The diagram below illustrates how inputs from the player are handled in the system:
 ![PlayerShip](/images/SwarmTutorial-BlockDiagrams-Pirates-Player.png)
 
 
@@ -299,19 +301,37 @@ This is a data flow diagram for the PlayerShip entity. Player input (keyboard: W
 [WorkerType(WorkerPlatform.UnityClient)]
 ```
 This is then written into the component ShipControls, as defined in schema/improbable/ship/ShipControls.schema
+
 This data is then read, every frame, by ShipController.cs, which modifies the inputs : inputSpeed & inputSteering into targetSpeed & targetSteering. These 2 variables, in turn are read by ShipMovement.cs, and it is applied to the 3D model of the ship.
 
-These 3 scripts: PlayerInput.cs, ShipController.cs & ShipMovement.cs are attached to the GameObject PlayerShip (and hence the prefab).
+These 3 scripts: *PlayerInput.cs, ShipController.cs & ShipMovement.cs* are attached to the GameObject PlayerShip (and hence the prefab).
 
 Using a similar architecture, we create a Player prefab for our simulation, which represents the user who has logged in to view (and possibly interact) with the simulation.
 
 
 
-#### A. Setting up the client.
-TO begin with we will have a FPS-like client, i.e. one that can be controlled by WASD + mouse. The architecture is something like this:
+#### Control Flow In The Swarm
+
+The control flow used here is very similar to that of the PiratesTutorial. We use an FPS-like client, i.e. one that can be controlled by WASD + mouse:
 ![Player-Architecture](/images/SwarmTutorial-Swarm-Player.png)
 
-In order to setup such a client in unity, we need the following entities, with their components:
+PlayerMovement uses the inputs that it reads from PlayerControls component, and translates the Player gameobject accordingly:
+```
+transform.Translate(PlayerControlsReader.Data.keyHorizontal * Time.deltaTime, 0.0f, PlayerControlsReader.Data.keyVertical * Time.deltaTime);
+```
+It then writes this position and orientation information (speed is not important for players) to the WorldTransform component, so that other entities can visualize this player if they want. Or not.
+
+We do not need a ShipController to modify the inputs, but we need a secondary controller, CameraRotationController, that applies the inputs from the mouse to move the camera's rotation and is attached to the Player gameobject.
+
+
+
+
+#### Spawning Players
+
+In order to be able to inject a player into the simulation, we need to spawn them in, using a PlayerSpawnManager. Everytime a player connects, the bootstrap.cs script (on the client side), connects to the PlayerSpawner, and requests it to spawn a new player, and returns it's entity id.
+
+
+We need to add the following entities+components, to enable this:
 
 - Player Spawner : This allows spatial to manage all incoming connections and assign them gameobjects
 	- WorldTransform : to know where it it
@@ -321,11 +341,11 @@ In order to setup such a client in unity, we need the following entities, with t
 - Player : The entity that embodies each player
 	- WorldTransform : to know where in space it is
 	- PlayerLifecycle : to keep track of when this player disconnects, by tracking a 'heartbeat'
+	- PlayerControls : to get inputs from the player, in order to move their camera
 	
 This allows the PlayerSpawner (which is created on boot) to spawn players, as they connect.
 
 
-As you can see, I've used the PiratesTutorial as reference.
 This being SpatialOS, you can have hundreds of people log into the experience, out of the box! We will start with one, but will build the base that will allow any number of players to join in.
 Later you can build any interaction in conjunction with multiplayer, and bring about very complex behaviors.
 
@@ -337,12 +357,22 @@ You can find the new schemas for the components in Swarm/schema/improbable/playe
 Next, we setup the EntityTemplates that make up the entities. We create the following EntityTemplates:
 
 	- PlayerEntityTemplate (similar to the PlayerShipEntityTemplate in PiratesTutorial)
-	<insert image of the acls from this file>
+	
+	```
+	playerEntityTemplate.Add(new WorldTransform.Data(new WorldTransformData(initialPosition, playerInitialRotation, 0)));
+	playerEntityTemplate.Add(new PlayerLifecycle.Data(new PlayerLifecycleData(0, 3, 10)));    	
+	playerEntityTemplate.Add (new PlayerControls.Data (new PlayerControlsData (0, 0, 0, 0)));
+	```
+	
 	We make sure that the WorldTransform and PlayerControls can be accessed by the Unity Client
 
 
 	- PlayerSpawnerEntityTemplate (identical to the PlayerSpawnerEntityTemplate in PiratesTutorial)
 	It's important to attach the Spawner component to this entity.
+	```
+	playerSpawner.Add(new Spawner.Data(new SpawnerData()));
+	```
+	
 
 We also add the following scripts to Assets/Gamelogic/Player/Behaviors:
 
@@ -352,12 +382,12 @@ We also add the following scripts to Assets/Gamelogic/Player/Behaviors:
 	
 	- PlayerSpawnManager : This is attached to the PlayerSpawner prefab, and contains callbacks that are invoked when a new player requests to join the simulation. This spawns the new player and gives them controls to look around and move.
 
-	- PlayerHeartbeatSender : This sends heartbeats (HBs) ever to often (determined by the playerHeartbeatInterval), which is received by the PlayerEntityLifeCycleManager to determine, which player is unresponsive, and they get kicked out.
+	- PlayerHeartbeatSender : This sends heartbeats (HBs) ever so often (determined by the playerHeartbeatInterval), which is received by the PlayerEntityLifeCycleManager (below) to determine, which player is unresponsive, and kicking them out.
 
-	- PlayerEntityLifeCycleManager : This basically checks to see if new HBs are coming in from any player, and if it reaches the threshold of missed heartbeats, it deletes the player.
+	- PlayerEntityLifeCycleManager : This checks to see if new HBs are coming in from any player, and if it reaches the threshold of missed heartbeats, it deletes the player.
 
 
-We also need to modify Assets/Bootstrap.cs, and the modifications are identical to the file in PiratesTutorial. This is a what the Unity Client (any player logging in) uses to connect to the simulation. This script first finds the PlayerSpawner, and then requests PlayerSpawner to create a new Player and inject them into the simulation at the designated coordinates (defaulted to (0,0,0))
+We also need to modify *Assets/Bootstrap.cs*, and the modifications are identical to the file in PiratesTutorial and it is how the Unity Client (any player logging in) uses to connect to the simulation. This script first finds the PlayerSpawner, and then requests PlayerSpawner to create a new Player and inject them into the simulation at the designated coordinates (defaulted to (0,0,0))
 
 At this point you can build, and run the simulation locally. Once that is successful, open the project in Unity and play the CLientScene. You should see something like this:
 <br />
@@ -372,15 +402,19 @@ Thereafter, build for deployment, create assembly and launch into the cloud, and
 
 #### B. Adding SteamVR
 
-Changes to integrate SteamVR :
+At this point, you may want to check out the latest code from this repo, as it has all the SteamVR changes. In order to allow SteamVR to take over the camera, we need to make a few changes:
+1. 
 
 - PlayerVR (prefab)
-	- VRPlayerMovement.cs : We enable this only on the Client Side, as we do not want SteamVR running on the servers. In Start(), we look to make sure the [CameraRig] object (default SteamVR prefab name) is available on this GameObject. You can do this by making the [CameraRig] prefab, a child of the an empty gameobject, called PlayerVR, and making that a prefab. We only enable SteamVR camera if it is attached to this player. This is a safeguard that prevents clients from running steamVR when theyre not supposed to.
+	- VRPlayerMovement.cs : This replaces PlayerMovement.cs, and reads the inputs from SteamVR and writes those to the WorldTransform component. In Start(), it checks to make sure the [CameraRig] object (default SteamVR prefab name) is available on this GameObject. You can do this by making the [CameraRig] prefab, a child of the an empty gameobject, called PlayerVR, and making that a prefab. We only enable SteamVR camera if it is attached to this player. This is a safeguard that prevents clients from running steamVR when theyre not supposed to. 
+	
 	- PlayerSpawnManager.cs : Change the name of the prefab to spawn to "PlayerVR" instead of "Player"
-	Change scripts that are part of SteamVR, so they dont run on the server side. 
-	- SteamVR.cs:
-	- SteamVR_Camera.cs:
-		- Add Teleport capability : This is done quite easily by adding the following scripts to either, or both, of your controllers:
+	
+	- Add #ifdefs to the following files, to prevent SteamVR from being active on the Server side (linux). You can find the references in [this forum thread](https://forums.improbable.io/t/enabling-steamvr-on-client-only/1872/3)
+		- SteamVR.cs:
+		- SteamVR_Camera.cs:
+	
+	- Add Teleport capability : This is done quite easily by adding the following scripts to either, or both, of your controllers:
 		- SteamVR_LaserPointer.cs
 		- SteamVR_Teleporter.cs
 
