@@ -136,31 +136,46 @@ At this point, if you don't know what Improbable or SpatialOS is, I would highly
 Once you're past these (and I would love your feedback on what you thought of these), the following may help you setup a simulation model, as opposed to a game. (We will gamify and add VR to this sim later!)
 <br />
 
+The code is on GitHub here. Please check out the [tag v0.1](https://github.com/ananda13/swarm/releases/tag/v0.1), if you want to start with some basics and add on the rest yourself. Otherwise check out the [latest](https://github.com/ananda13/swarm/) [*Recommended*].
+<br />
+
 As you have noticed, the client-server architecture underpins any spatialOS setup. SpatialOS will let you create UnityServers and UnityClients on which you can run separate pieces of code. In general if you need a window into the world, or need to control anything within this world, you'll need a client, otherwise, everything runs on the server side. The advantage of using SpatialOS, is that now you can run hundreds of thousands of entities in a swarm, and spatialOS will manage all the underlying complexity, and make it work like magic. 
 
 Reality scale simulation. That's pretty cool!
 
 Now, onto the fun stuff. Lets get a swarm going.
+<br />
 
 #### Control Flow for Boids (server)
-Each swarming entity in the system is called a boid, and in this tutorial I have a model of a fish, with corresponding animation of it swimming, which we will use for the visuatlization. You can replace this with a dragon, drone or a daikon radish.
+Each swarming entity in the system is called a boid, and in this tutorial, I have a model of a fish, with corresponding animation of it swimming, which we will use for the visuatlization. You can replace this with a dragon, drone or a daikon radish.
 
-We need 2 main entities:
- * Fish
- * Goal
+We need 2 main entities, and their corresponding components:
+ * Fish (FishEntityTemplate.cs)
+ 	* WorldTransform : To denote the position of each boid. I've modified the standard WorldTransform.schema file to include a speed component as well, since each boid needs to know the speed of it's neighbors to participate in swarming behavior
+	* FishParameters : The total number of fish, initial speed, and volume of the tank (i.e. the volume of space over which they will be active) 
+ * Goal (SwarmGoalEntityTemplate.cs)
+ 	* WorldTransform : Each fish needs to know where the goal is, to be able to react to it.
+	* GoalParamters : Tank volume, and speed at which it moves.
  
+There will be corresponding entity prefabs for fish and goal to which the model, animation, and corresponding scripts have been attached. You can find them in Assets/EntityPrefabs.
 
+Overall, this architecture can be summed up as:
+![FishGoalController](images/FishController-GoalController.png)
+<br />
 
+##### FishController
+Every frame, it checks to see how many fish there are around, within a certain radius (denoted by neighborDistance). Similarly it find where the goal entitiy is, and then applies swarming behavior based on the position and speed of those entities. 
+We use [spatial queries](https://spatialos.improbable.io/docs/reference/10.1/workers/unity/querying-world), to gather the information about neighboring fish and goal.
+<br />
 
-The code is on GitHub here. Please check out the [tag v0.1](https://github.com/ananda13/swarm/releases/tag/v0.1), if you want to start with some basics and add on the rest yourself. Otherwise check out the [latest](https://github.com/ananda13/swarm/) [*Recommended*].
+##### GoalController
+The goal controller simply moves the goal about to an arbitatry position within the tank volume, at a constant speed. It stays at a position for a random period of time, and then moves on. This provides the random movement of the flock. You can, ofcourse tailor its motion to whatever you want, and the swarm will try to follow it.
+<br />
 
-
-Using a similar architecture, we create a Player prefab for our simulation, which represents the user who has logged in to view (and possibly interact) with the simulation.
-
-
-
+<br />
 
 #### Setup
+<br />
 
 Modify spatialOS.json in your project root directory as follows (*this is a critical step*):
 
@@ -276,7 +291,7 @@ Onward, and upward!
 #### Data Flow For Players (client)
 
 I've followed PiratesTutorial as an example, and built on top of that. For example, the PlayerShip in PiratesTutuorial is built like this:
-![PlayerShip](/images/SwarmTutorial-BlockDiagrams-Pirates-Player.jpeg)
+![PlayerShip](/images/SwarmTutorial-BlockDiagrams-Pirates-Player.png)
 
 
 This is a data flow diagram for the PlayerShip entity. Player input (keyboard: WASD,etc) is recorded by the PlayerInput.cs script, which runs on the client only, as denoted by:
@@ -287,6 +302,8 @@ This is then written into the component ShipControls, as defined in schema/impro
 This data is then read, every frame, by ShipController.cs, which modifies the inputs : inputSpeed & inputSteering into targetSpeed & targetSteering. These 2 variables, in turn are read by ShipMovement.cs, and it is applied to the 3D model of the ship.
 
 These 3 scripts: PlayerInput.cs, ShipController.cs & ShipMovement.cs are attached to the GameObject PlayerShip (and hence the prefab).
+
+Using a similar architecture, we create a Player prefab for our simulation, which represents the user who has logged in to view (and possibly interact) with the simulation.
 
 
 
