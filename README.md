@@ -424,12 +424,13 @@ With these changes, you can build and launch, first locally, and then in the clo
 
 <br />
 
-### Optimizing Workers
+### Optimizing Workers /// Load Balancing
 
-We will need to optimize the workers for the way the world is designed and the special needs of a swarm. With the way spatialOS distributes load across workers, is spatially! Of course this comes with the assumption that load is spread out on average spatially. However, this is not true for swarms, as they can cluster heavily in one region, and overload the Unity worker. This can result is freezing motion, or the unity worker completely giving up.
-One workaround for this, which Im still fine-tuning, is to have more workers cover less ground each, so that as the swarm moves through the area, it is already getting split between multiple workers. This will also stress test how handoffs happen between adjacent workers. This is not an ideal workaround, and if you find better ways of managing this, please drop me a line, Id like to learn more as well.
+We will need to optimize the workers for the way the world is designed and the special needs of a swarm. With the way spatialOS distributes load across workers, is spatially! Of course this comes with the assumption that load is spread out, on average, spatially. However, this is not true for swarms, as they can cluster heavily in one region, and overload the Unity worker. This can result in the a visual freeze up, when one unity worker is processing the entire swarm, getting overloaded and giving up.
+I'm working on a couple of load balancing strategies currently, and can certainly use any inputs and ideas:
 
-Currently, I am having trouble with the most optimal way of setting up the workers, and it seems like I need to have them such that all or most of the workers overlap and are actually _not spread out_ over tank. More on this soon.
+- Have more workers (currently with 16 workers for a 50x50m area) cover about equal ground each. So as the swarm moves through space (x-z), it gets split up between workers. I'm still seeing a lot of freezing up of workers with this method, as it happens that the swarms is pretty well ditributed in the vertical (y-space) direction, but all the processing is happening on one UnityWorker, as it's clustered in x-z space. This is also stress testing the handoff mechanism between adjacent workers. 
+ - Another way is to have each worker cover the entire tank space (50x50m), and hence all the worker overlap, and share the load. This seems, atleast with minimal testing, seem like the more optimal approach. More on this later...
 
 <br />
 
@@ -456,8 +457,9 @@ Let me know if you've made a simulation with Spatial! I'd love to check it out!
 <br />
 
 ## Future
+I will be updating this tutorial, as I find more insights, especially on worker load balancing, as this is quite challenging for the swarm mechanism.
 
-I'm taking up the swarm project, and building a multi-user art-science experiment where players will be able to _try_ to control swarms of different creatures (from starlings to drones!) on islands floating in the sky. In VR (duh)!
+I'm also building on this project, and creating a multi-user art-science experiment where players will be able to (_try to_) control swarms of different creatures (from starlings to drones!) on islands floating in the sky. In VR (duh)!
 <br />
 
 If you're interested in contributing, either with code, art or ideas, feel free to drop me a line.
