@@ -308,8 +308,10 @@ Using a similar architecture, we create a Player prefab for our simulation, whic
 
 
 #### A. Setting up the client.
+TO begin with we will have a FPS-like client, i.e. one that can be controlled by WASD + mouse. The architecture is something like this:
+![Player-Architecture](/images/SwarmTutorial-Swarm-Player.png)
 
-In order to setup a client in unity, we need the following entities, with their components:
+In order to setup such a client in unity, we need the following entities, with their components:
 
 - Player Spawner : This allows spatial to manage all incoming connections and assign them gameobjects
 	- WorldTransform : to know where it it
