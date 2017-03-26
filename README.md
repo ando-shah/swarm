@@ -356,35 +356,33 @@ You can find the new schemas for the components in Swarm/schema/improbable/playe
 
 Next, we setup the EntityTemplates that make up the entities. We create the following EntityTemplates:
 
-	- PlayerEntityTemplate (similar to the PlayerShipEntityTemplate in PiratesTutorial)
+- PlayerEntityTemplate (similar to the PlayerShipEntityTemplate in PiratesTutorial): We make sure that the WorldTransform and PlayerControls can be accessed by the Unity Client
 	
-	
+	```
 	playerEntityTemplate.Add(new WorldTransform.Data(new WorldTransformData(initialPosition, playerInitialRotation, 0)));
 	playerEntityTemplate.Add(new PlayerLifecycle.Data(new PlayerLifecycleData(0, 3, 10)));    	
 	playerEntityTemplate.Add (new PlayerControls.Data (new PlayerControlsData (0, 0, 0, 0)));
-	
-	
-	We make sure that the WorldTransform and PlayerControls can be accessed by the Unity Client
+	```
 
 
-	- PlayerSpawnerEntityTemplate (identical to the PlayerSpawnerEntityTemplate in PiratesTutorial)
-	It's important to attach the Spawner component to this entity.
-	
-	playerSpawner.Add(new Spawner.Data(new SpawnerData()));
-	
+- PlayerSpawnerEntityTemplate (identical to the PlayerSpawnerEntityTemplate in PiratesTutorial)
+It's important to attach the Spawner component to this entity.
+```	
+playerSpawner.Add(new Spawner.Data(new SpawnerData()));
+```	
 	
 
 We also add the following scripts to Assets/Gamelogic/Player/Behaviors:
 
-	- PlayerInputController : This takes inputs from the player (in this case, using the mouse and keyboard WASD to control the motion of the player), and updates the PlayerControls component
+- PlayerInputController : This takes inputs from the player (in this case, using the mouse and keyboard WASD to control the motion of the player), and updates the PlayerControls component
 	
-	- PlayerMovement & CameraRotationController : These together receive the component updates of PlayerControls and move the Player gameobject and associated camera
+- PlayerMovement & CameraRotationController : These together receive the component updates of PlayerControls and move the Player gameobject and associated camera
 	
-	- PlayerSpawnManager : This is attached to the PlayerSpawner prefab, and contains callbacks that are invoked when a new player requests to join the simulation. This spawns the new player and gives them controls to look around and move.
+- PlayerSpawnManager : This is attached to the PlayerSpawner prefab, and contains callbacks that are invoked when a new player requests to join the simulation. This spawns the new player and gives them controls to look around and move.
 
-	- PlayerHeartbeatSender : This sends heartbeats (HBs) ever so often (determined by the playerHeartbeatInterval), which is received by the PlayerEntityLifeCycleManager (below) to determine, which player is unresponsive, and kicking them out.
+- PlayerHeartbeatSender : This sends heartbeats (HBs) ever so often (determined by the playerHeartbeatInterval), which is received by the PlayerEntityLifeCycleManager (below) to determine, which player is unresponsive, and kicking them out.
 
-	- PlayerEntityLifeCycleManager : This checks to see if new HBs are coming in from any player, and if it reaches the threshold of missed heartbeats, it deletes the player.
+- PlayerEntityLifeCycleManager : This checks to see if new HBs are coming in from any player, and if it reaches the threshold of missed heartbeats, it deletes the player.
 
 
 We also need to modify *Assets/Bootstrap.cs*, and the modifications are identical to the file in PiratesTutorial and it is how the Unity Client (any player logging in) uses to connect to the simulation. This script first finds the PlayerSpawner, and then requests PlayerSpawner to create a new Player and inject them into the simulation at the designated coordinates (defaulted to (0,0,0))
@@ -399,7 +397,8 @@ Thereafter, build for deployment, create assembly and launch into the cloud, and
 
 <br />
 
-#### B. Adding SteamVR
+### B. Adding SteamVR
+---
 
 At this point, you may want to check out the latest code from this repo, as it has all the SteamVR changes. In order to allow SteamVR to take over the camera, we need to make a few changes:
  
@@ -410,8 +409,8 @@ At this point, you may want to check out the latest code from this repo, as it h
 	- PlayerSpawnManager.cs : Change the name of the prefab to spawn to "PlayerVR" instead of "Player"
 	
 	- Add #ifdefs to the following files, to prevent SteamVR from being active on the Server side (linux). You can find the references in [this forum thread](https://forums.improbable.io/t/enabling-steamvr-on-client-only/1872/3)
-		- SteamVR.cs:
-		- SteamVR_Camera.cs:
+		- SteamVR.cs
+		- SteamVR_Camera.cs
 	
 	- Add Teleport capability : This is done quite easily by adding the following scripts to either, or both, of your controllers:
 		- SteamVR_LaserPointer.cs
@@ -420,6 +419,8 @@ At this point, you may want to check out the latest code from this repo, as it h
 From a control flow perspective, we only have one script, VRPlayerController, that is getting the input from Steam, and plugging it into the WorldTransform component. I hope the client-server architecture is making sense by now! 
 
 With these changes, you can build and launch, first locally, and then in the cloud, and verify your changes.
+Put on your headset, teleport and walk with the fish swarm.
+
 <br />
 
 <br />
