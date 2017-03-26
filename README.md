@@ -396,14 +396,13 @@ At this point you can build, and run the simulation locally. Once that is succes
 
 Thereafter, build for deployment, create assembly and launch into the cloud, and use the Improbable Launcher to log into client view.
 <br />
+
 <br />
-
-
 
 #### B. Adding SteamVR
 
 At this point, you may want to check out the latest code from this repo, as it has all the SteamVR changes. In order to allow SteamVR to take over the camera, we need to make a few changes:
-1. 
+ 
 
 - PlayerVR (prefab)
 	- VRPlayerMovement.cs : This replaces PlayerMovement.cs, and reads the inputs from SteamVR and writes those to the WorldTransform component. In Start(), it checks to make sure the [CameraRig] object (default SteamVR prefab name) is available on this GameObject. You can do this by making the [CameraRig] prefab, a child of the an empty gameobject, called PlayerVR, and making that a prefab. We only enable SteamVR camera if it is attached to this player. This is a safeguard that prevents clients from running steamVR when theyre not supposed to. 
@@ -418,18 +417,19 @@ At this point, you may want to check out the latest code from this repo, as it h
 		- SteamVR_LaserPointer.cs
 		- SteamVR_Teleporter.cs
 
+From a control flow perspective, we only have one script, VRPlayerController, that is getting the input from Steam, and plugging it into the WorldTransform component. I hope the client-server architecture is making sense by now! 
 
+With these changes, you can build and launch, first locally, and then in the cloud, and verify your changes.
+<br />
+
+<br />
 
 ### Optimizing Workers
 
 We will need to optimize the workers for the way the world is designed and the special needs of a swarm. With the way spatialOS distributes load across workers, is spatially! Of course this comes with the assumption that load is spread out on average spatially. However, this is not true for swarms, as they can cluster heavily in one region, and overload the Unity worker. This can result is freezing motion, or the unity worker completely giving up.
 One workaround for this, which Im still fine-tuning, is to have more workers cover less ground each, so that as the swarm moves through the area, it is already getting split between multiple workers. This will also stress test how handoffs happen between adjacent workers. This is not an ideal workaround, and if you find better ways of managing this, please drop me a line, Id like to learn more as well.
 
-
-
-
-
-
+Currently, I am having trouble with the most optimal way of setting up the workers, and it seems like I need to have them such that all or most of the workers overlap and are actually _not spread out_ over tank. More on this soon.
 
 <br />
 
@@ -447,11 +447,13 @@ Follow changes on [GitHub](https://github.com/ananda13/swarm)<br />
 
 Follow the [Improbable Forum](https://forums.improbable.io/)<br />
 
+You can also find my work on [my website](www.ando.xyz)<br />
 
-Let me know if you've made a simulation with Spatial! I'd love to see it!<br />
+
+Let me know if you've made a simulation with Spatial! I'd love to check it out!
 <br />
 
-
+<br />
 
 ## Future
 
