@@ -358,20 +358,20 @@ Next, we setup the EntityTemplates that make up the entities. We create the foll
 
 	- PlayerEntityTemplate (similar to the PlayerShipEntityTemplate in PiratesTutorial)
 	
-	```
+	
 	playerEntityTemplate.Add(new WorldTransform.Data(new WorldTransformData(initialPosition, playerInitialRotation, 0)));
 	playerEntityTemplate.Add(new PlayerLifecycle.Data(new PlayerLifecycleData(0, 3, 10)));    	
 	playerEntityTemplate.Add (new PlayerControls.Data (new PlayerControlsData (0, 0, 0, 0)));
-	```
+	
 	
 	We make sure that the WorldTransform and PlayerControls can be accessed by the Unity Client
 
 
 	- PlayerSpawnerEntityTemplate (identical to the PlayerSpawnerEntityTemplate in PiratesTutorial)
 	It's important to attach the Spawner component to this entity.
-	```
+	
 	playerSpawner.Add(new Spawner.Data(new SpawnerData()));
-	```
+	
 	
 
 We also add the following scripts to Assets/Gamelogic/Player/Behaviors:
