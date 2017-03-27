@@ -432,11 +432,22 @@ I'm working on a couple of load balancing strategies currently, and can certainl
 
 - Have more workers (currently with 16 workers for a 50x50m area) cover about equal ground each. So as the swarm moves through space (x-z), it gets split up between workers. I'm still seeing a lot of freezing up of workers with this method, as it happens that the swarms is pretty well ditributed in the vertical (y-space) direction, but all the processing is happening on one UnityWorker, as it's clustered in x-z space. This is also stress testing the handoff mechanism between adjacent workers. 
  - Another way is to have each worker cover the entire tank space (50x50m), and hence all the worker overlap, and share the load. This seems, atleast with minimal testing, seem like the more optimal approach. More on this later...
+<br />
 
+Here's how my load balancer is doing. FYI, depending on swarm behavior, it crashes quite often.
+![Load Balancing](images/Swarm-LoadBalancing-Auto-HexGrid.gif)
 <br />
 
 <br />
 
+## Conclusion
+If you got this far, hopefully you're being able to teleport around this simple world, and seeing fish all around, doing funny things
+Here's a video of what I got:
+<br />
+
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=r3i4vKqXSP4
+" target="_blank"><img src="http://img.youtube.com/vi/r3i4vKqXSP4/0.jpg" 
+alt="Swarm Sim VR screen grab" width="500"  border="10" /></a>
 <br />
 
 <br />
