@@ -472,6 +472,9 @@ Let me know if you've made a simulation with Spatial! I'd love to check it out!
 I will be updating this tutorial, as I find more insights, especially on worker load balancing, as this is quite challenging for the swarm mechanism.
 
 I'm also building on this project, and creating a multi-user art-science experiment where players will be able to (_try to_) control swarms of different creatures (from starlings to drones!) on islands floating in the sky. In VR (duh)!
+
+Here's a grab of a low-poly world I'm prototyping in
+![low-poly-test](images/Flock-Test-Env-optim.gif)
 <br />
 
 If you're interested in contributing, either with code, art or ideas, feel free to drop me a line.
