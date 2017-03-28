@@ -9,7 +9,7 @@
 
 ## Introduction
 
-This is a tutorial on how to setup a swarm simulation using [spatialOS](https://spatialos.improbable.io/), which is created by Improbable.
+This is a tutorial on how to setup a swarm simulation using *[SpatialOS](https://spatialos.improbable.io/)*, which is created by Improbable. SpatialOS is a really powerful tool, that can be used for a wide variety of amazing things.
 
 Disclaimer: I am not a spatialOS expert, but a simulation enthusiast, and the intent of the tutorial is to understand how to build large scale simulations with SpatialOS, with the bulk of the computation (physics) running on the cloud. The additional advantage is that you can have multiple users log into it, to view or interact with the simulation
 
@@ -93,7 +93,7 @@ I've added a fourth rule, so that the flock has a goal to follow:
 Steer each boid towards an arbitrary goal<br />
 
 
-You can also add more sophisticated rules such as collision avoidance, goal intelligence, etc<br />
+You can also add more sophisticated rules such as collision avoidance, goal intelligence, predator avoidance, etc<br />
 <br />
 
 
@@ -133,7 +133,7 @@ At this point, if you don't know what Improbable or SpatialOS is, I would highly
 4. [PiratesTutorial](https://spatialos.improbable.io/docs/reference/10.1/tutorials/pirates/overview) : Understand the basic mechanism of client-server architecture. This is the most important tutorial, and the rest of this tutorial is based off this one.
 <br />
 
-Once you're past these (and I would love your feedback on what you thought of these), the following may help you setup a simulation model, as opposed to a game. (We will gamify and add VR to this sim later!)
+Once you're past these (and I would love your feedback on what you thought of them), the following may help you setup a simulation model, as opposed to a game. (We will gamify and add VR to this sim later!)
 <br />
 
 The code is on GitHub here. Please check out the [tag v0.1](https://github.com/ananda13/swarm/releases/tag/v0.1), if you want to start with some basics and add on the rest yourself. Otherwise check out the [latest](https://github.com/ananda13/swarm/) [*Recommended*].
@@ -147,7 +147,7 @@ Now, onto the fun stuff. Lets get a swarm going.
 <br />
 
 #### Control Flow for Boids (server)
-Each swarming entity in the system is called a boid, and in this tutorial, I have a model of a fish, with corresponding animation of it swimming, which we will use for the visuatlization. You can replace this with a dragon, drone or a daikon radish.
+Each swarming entity in the system is called a boid, and in this tutorial, I have a model of a fish, with corresponding animation of it swimming, which we will use for the visualization. You can replace this with a dragon, drone or a daikon radish.
 
 We need 2 main entities, and their corresponding components:
  * Fish (FishEntityTemplate.cs)
@@ -155,7 +155,7 @@ We need 2 main entities, and their corresponding components:
 	* FishParameters : The total number of fish, initial speed, and volume of the tank (i.e. the volume of space over which they will be active) 
  * Goal (SwarmGoalEntityTemplate.cs)
  	* WorldTransform : Each fish needs to know where the goal is, to be able to react to it.
-	* GoalParamters : Tank volume, and speed at which it moves.
+	* GoalParameters : Tank volume, and speed at which it moves.
  
 There will be corresponding entity prefabs for fish and goal to which the model, animation, and corresponding scripts have been attached. You can find them in Assets/EntityPrefabs.
 
@@ -164,7 +164,7 @@ Overall, this architecture can be summed up as:
 <br />
 
 ##### FishController
-Every frame, it checks to see how many fish there are around, within a certain radius (denoted by neighborDistance). Similarly it find where the goal entitiy is, and then applies swarming behavior based on the position and speed of those entities. 
+Every frame, it checks to see how many fish there are around, within a certain radius (denoted by neighborDistance). Similarly it find where the goal entity is, and then applies swarming behavior based on the position and speed of those entities. 
 We use [spatial queries](https://spatialos.improbable.io/docs/reference/10.1/workers/unity/querying-world), to gather the information about neighboring fish and goal.
 <br />
 
@@ -266,7 +266,7 @@ $ spatial cloud launch SwarmSimAssembly default_launch.json swarm --snapshot=sna
  - Improbable > Prefabs > Export All Entity Prefabs (this exports all the prefabs in the folder /Assets/EntityPrefabs)
  - Back to the Spatial Menu
  - Click on 'Build'
- - Click on 'Spatial upload' > And type in an assemly name, like 'SwarmSimAssembly' > Upload (this uploads the assembly that you generated in the build step, to your spatial account)
+ - Click on 'Spatial upload' > And type in an assembly name, like 'SwarmSimAssembly' > Upload (this uploads the assembly that you generated in the build step, to your spatial account)
  - At the time of writing, there isn't a way to actually launch the deployment from within Unity. You will have to open up a shell, such as PowerShell, navigate to the root folder, and type the following:
  ```
  $ spatial cloud launch SwarmSimAssembly default_launch.json swarm --snapshot=snapshots/default.snapshot
@@ -296,7 +296,7 @@ I've been using PirateTutorial as a reference, to build the swarm tutorial. The 
 ![PlayerShip](/images/SwarmTutorial-BlockDiagrams-Pirates-Player.png)
 
 
-This is a data flow diagram for the PlayerShip entity. Player input (keyboard: WASD,etc) is recorded by the PlayerInput.cs script, which runs on the client only, as denoted by:
+This is a control flow diagram for the PlayerShip entity. Player input (keyboard: WASD,etc) is recorded by the PlayerInput.cs script, which runs on the client only, as denoted by:
 ```
 [WorkerType(WorkerPlatform.UnityClient)]
 ```
@@ -376,7 +376,7 @@ We also add the following scripts to Assets/Gamelogic/Player/Behaviors:
 
 - PlayerInputController : This takes inputs from the player (in this case, using the mouse and keyboard WASD to control the motion of the player), and updates the PlayerControls component
 	
-- PlayerMovement & CameraRotationController : These together receive the component updates of PlayerControls and move the Player gameobject and associated camera
+- PlayerMovement & CameraRotationController : These together receive the component updates of PlayerControls and move the Player gameobject and associated camera (we will use different scripts to enable VR).
 	
 - PlayerSpawnManager : This is attached to the PlayerSpawner prefab, and contains callbacks that are invoked when a new player requests to join the simulation. This spawns the new player and gives them controls to look around and move.
 
@@ -387,7 +387,7 @@ We also add the following scripts to Assets/Gamelogic/Player/Behaviors:
 
 We also need to modify *Assets/Bootstrap.cs*, and the modifications are identical to the file in PiratesTutorial and it is how the Unity Client (any player logging in) uses to connect to the simulation. This script first finds the PlayerSpawner, and then requests PlayerSpawner to create a new Player and inject them into the simulation at the designated coordinates (defaulted to (0,0,0))
 
-At this point you can build, and run the simulation locally. Once that is successful, open the project in Unity and play the CLientScene. You should see something like this:
+At this point you can build, and run the simulation locally. Once that is successful, open the project in Unity and play the ClientScene. You should see something like this:
 <br />
 
 ![Client View](/images/Unity-Client-first-view.png)
@@ -434,8 +434,9 @@ I'm working on a couple of load balancing strategies currently, and can certainl
  - Another way is to have each worker cover the entire tank space (50x50m), and hence all the worker overlap, and share the load. This seems, atleast with minimal testing, seem like the more optimal approach. More on this later...
 <br />
 
-Here's how my load balancer is doing. FYI, depending on swarm behavior, it crashes quite often.
+Here's how my load balancer is doing with the Auto Hex Grid setting. 
 ![Load Balancing](images/Swarm-LoadBalancing-Auto-HexGrid.gif)
+FYI, depending on swarm behavior, it crashes quite often.
 <br />
 
 <br />
@@ -450,6 +451,9 @@ Here's a video of what I got:
 alt="Swarm Sim VR screen grab" width="500"  border="10" /></a>
 <br />
 
+This tutorial should help you take an empty project and build on it, using some of the concepts laid out here, which is really an explanation of what is happening within the PiratesTutorial.
+
+What will you build?
 <br />
 
 ## Stay In Touch
